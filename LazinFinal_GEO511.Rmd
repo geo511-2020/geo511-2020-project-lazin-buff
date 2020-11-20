@@ -1,0 +1,1383 @@
+---
+title: "US Federal Election 2020"
+author: Marko Lazin
+subtitle: A brief look at Twitter Sentiments around the election, and the Electoral College
+---
+
+# Introduction
+
+[~ 200 words]
+
+Clearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way.
+
+# Materials and methods
+
+[~ 200 words]
+
+Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.
+
+Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.
+
+Data: The underlying data are publicly accessible via the web and downloaded/accessed within the Rmd script. If you want to use your own data, you must make it available on a website (e.g. Figshare) so that others are able to re-run your code.
+
+You can do bullets like this:
+
+* The first most important thing
+* The second most important thing
+* The third most important thing
+
+You can do numbers like this:
+
+1. The first most important thing
+2. The second most important thing
+3. The third most important thing
+
+See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
+
+
+Here's my first code chunk.
+```{r}
+1+2
+```
+
+Load any required packages in a code chunk (you may need to install some packages):
+
+```{r, message=F, warning=F}
+library(usmap)
+library(tibble)
+library(tidytext)
+library(dplyr)
+library(tm)
+library(rtweet)
+library(ggplot2)
+library(e1071)
+library(RColorBrewer)
+library(wordcloud)
+library(wordcloud2)
+library(tmap)
+library(spData)
+library(sf)
+library(Cairo)
+library(ggwordcloud)
+library(pacman)
+library(tidyverse)
+library(geojsonio)
+library(rgdal)
+library(broom)
+library(rgeos)
+library(mapproj)
+knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
+```
+
+## Download all required data
+```{r}
+##define twitter search terms per state
+#alkw<-c("alabama,election")
+#azkw<-c("arizona,election")
+#cokw<-c("colorado,election")
+#cnkw<-c("connecticut,election")
+#flkw<-c("florida,election")
+#gakw<-c("georgia,election")
+#idkw<-c("idaho,election")
+#inkw<-c("indiana,election")
+#lakw<-c("louisiana,election")
+#makw<-c("massachusetts,election")
+#mnkw<-c("minnesota,election")
+#mokw<-c("missouri,election")
+#mtkw<-c("montana,election")
+#nvkw<-c("nevada,election")
+#njkw<-c("new jersey,election")
+#nykw<-c("new york,election")
+#ndkw<-c("north dakota,election")
+#okkw<-c("oklahoma,election")
+#pakw<-c("pennsylvania,election")
+#sckw<-c("south carolina,election")
+#sdkw<-c("south dakota,election")
+#txkw<-c("texas,election")
+#vtkw<-c("vermont,election")
+#wvkw<-c("west virginia,election")
+#arkw<-c("arkansas,election")
+#cakw<-c("california,election")
+#dekw<-c("delaware,election")
+#dckw<-c("district of columbia,election")
+#ilkw<-c("illinois,election")
+#iakw<-c("iowa,election")
+#kykw<-c("kentucky,election")
+#mekw<-c("maine,election")
+#mdkw<-c("maryland,election")
+#mikw<-c("michigan,election")
+#mskw<-c("mississippi,election")
+#nekw<-c("nebraska,election")
+#nhkw<-c("new hampshire,election")
+#nmkw<-c("new mexico,election")
+#nckw<-c("north carolina,election")
+#ohkw<-c("ohio,election")
+#orkw<-c("oregon,election")
+#rikw<-c("rhode island,election")
+#tnkw<-c("tennessee,election")
+#utkw<-c("utah,election")
+#vakw<-c("virginia,election")
+#wakw<-c("washington,election")
+#wikw<-c("wisonsin,election")
+#wvkw<-c("west virginia,election")
+#wykw<-c("wyoming,election")
+
+#al_e20<-stream_tweets(q=alkw,timeout = 240,lan='en')
+#ar_e20<-stream_tweets(q=arkw,timeout = 240,lan='en')
+#az_e20<-stream_tweets(q=azkw,timeout = 240,lan='en')
+#ca_e20<-stream_tweets(q=cakw,timeout = 240,lan='en')
+#cn_e20<-stream_tweets(q=cnkw,timeout = 240,lan='en')
+#co_e20<-stream_tweets(q=cokw,timeout = 240,lan='en')
+#dc_e20<-stream_tweets(q=dckw,timeout = 240,lan='en')
+#de_e20<-stream_tweets(q=dekw,timeout = 240,lan='en')
+#fl_e20<-stream_tweets(q=flkw,timeout = 240,lan='en')
+#ga_e20<-stream_tweets(q=gakw,timeout = 240,lan='en')
+#ia_e20<-stream_tweets(q=iakw,timeout = 240,lan='en')
+#id_e20<-stream_tweets(q=idkw,timeout = 240,lan='en')
+#il_e20<-stream_tweets(q=ilkw,timeout = 240,lan='en')
+#in_e20<-stream_tweets(q=inkw,timeout = 240,lan='en')
+#ks_e20<-stream_tweets(q=kskw,timeout = 240,lan='en')
+#ky_e20<-stream_tweets(q=kykw,timeout = 240,lan='en')
+#la_e20<-stream_tweets(q=lakw,timeout = 240,lan='en')
+#ma_e20<-stream_tweets(q=makw,timeout = 240,lan='en')
+#md_e20<-stream_tweets(q=mdkw,timeout = 240,lan='en')
+#me_e20<-stream_tweets(q=mekw,timeout = 240,lan='en')
+#mi_e20<-stream_tweets(q=mikw,timeout = 240,lan='en')
+#mn_e20<-stream_tweets(q=mnkw,timeout = 240,lan='en')
+#mo_e20<-stream_tweets(q=mokw,timeout = 240,lan='en')
+#ms_e20<-stream_tweets(q=mskw,timeout = 240,lan='en')
+#mt_e20<-stream_tweets(q=mtkw,timeout = 240,lan='en')
+#nc_e20<-stream_tweets(q=nckw,timeout = 240,lan='en')
+#nd_e20<-stream_tweets(q=ndkw,timeout = 240,lan='en')
+#ne_e20<-stream_tweets(q=nekw,timeout = 240,lan='en')
+#nh_e20<-stream_tweets(q=nhkw,timeout = 240,lan='en')
+#nj_e20<-stream_tweets(q=njkw,timeout = 240,lan='en')
+#nm_e20<-stream_tweets(q=nmkw,timeout = 240,lan='en')
+#nv_e20<-stream_tweets(q=nvkw,timeout = 240,lan='en')
+#ny_e20<-stream_tweets(q=nykw,timeout = 240,lan='en')
+#oh_e20<-stream_tweets(q=ohkw,timeout = 240,lan='en')
+#ok_e20<-stream_tweets(q=okkw,timeout = 240,lan='en')
+#or_e20<-stream_tweets(q=orkw,timeout = 240,lan='en')
+#pa_e20<-stream_tweets(q=pakw,timeout = 240,lan='en')
+#ri_e20<-stream_tweets(q=rikw,timeout = 240,lan='en')
+#sc_e20<-stream_tweets(q=sckw,timeout = 240,lan='en')
+#sd_e20<-stream_tweets(q=sdkw,timeout = 240,lan='en')
+#tn_e20<-stream_tweets(q=tnkw,timeout = 240,lan='en')
+#tx_e20<-stream_tweets(q=txkw,timeout = 240,lan='en')
+#ut_e20<-stream_tweets(q=utkw,timeout = 240,lan='en')
+#va_e20<-stream_tweets(q=vakw,timeout = 240,lan='en')
+#vt_e20<-stream_tweets(q=vtkw,timeout = 240,lan='en')
+#wa_e20<-stream_tweets(q=wakw,timeout = 240,lan='en')
+#wi_e20<-stream_tweets(q=wikw,timeout = 240,lan='en')
+#wv_e20<-stream_tweets(q=wvkw,timeout = 240,lan='en')
+#wy_e20<-stream_tweets(q=wykw,timeout = 240,lan='en')
+
+#al20<-tibble(1:6883,al_e20)
+#ar20<-tibble(1:6237,ar_e20)
+#az20<-tibble(1:6285,az_e20)
+#ca20<-tibble(1:6252,ca_e20)
+#cn20<-tibble(1:6434,cn_e20)
+#co20<-tibble(1:6386,co_e20)
+#dc20<-tibble(1:6451,dc_e20)
+#de20<-tibble(1:6407,de_e20)
+#fl20<-tibble(1:6312,fl_e20)
+#ga20<-tibble(1:6950,ga_e20)
+#ia20<-tibble(1:6449,ia_e20)
+#id20<-tibble(1:6336,id_e20)
+#il20<-tibble(1:6641,il_e20)
+#in20<-tibble(1:6568,in_e20)
+#ks20<-tibble(1:6598,ks_e20)
+#ky20<-tibble(1:6614,ky_e20)
+#la20<-tibble(1:6547,la_e20)
+#ma20<-tibble(1:6398,ma_e20)
+#md20<-tibble(1:6403,md_e20)
+#me20<-tibble(1:6453,me_e20)
+#mi20<-tibble(1:6374,mi_e20)
+#mn20<-tibble(1:7172,mn_e20)
+#mo20<-tibble(1:6923,mo_e20)
+#ms20<-tibble(1:6863,ms_e20)
+#mt20<-tibble(1:6814,mt_e20)
+#nc20<-tibble(1:6622,nc_e20)
+#nd20<-tibble(1:6743,nd_e20)
+#ne20<-tibble(1:6752,ne_e20)
+#nh20<-tibble(1:6711,nh_e20)
+#nj20<-tibble(1:6618,nj_e20)
+#nm20<-tibble(1:6736,nm_e20)
+#nv20<-tibble(1:6631,nv_e20)
+#ny20<-tibble(1:6532,ny_e20)
+#oh20<-tibble(1:6527,oh_e20)
+#ok20<-tibble(1:6449,ok_e20)
+#or20<-tibble(1:6431,or_e20)
+#pa20<-tibble(1:6656,pa_e20)
+#ri20<-tibble(1:6419,ri_e20)
+#sc20<-tibble(1:6450,sc_e20)
+#sd20<-tibble(1:6476,sd_e20)
+#tn20<-tibble(1:6500,tn_e20)
+#tx20<-tibble(1:6180,tx_e20)
+#ut20<-tibble(1:6207,ut_e20)
+#va20<-tibble(1:6273,va_e20)
+#vt20<-tibble(1:6543,vt_e20)
+#wa20<-tibble(1:6349,wa_e20)
+#wi20<-tibble(1:6102,wi_e20)
+#wv20<-tibble(1:6380,wv_e20)
+#wy20<-tibble(1:6186,wy_e20)
+
+#write_as_csv(al20,"elxn_al.csv")
+#write_as_csv(ar20,"elxn_ar.csv")
+#write_as_csv(az20,"elxn_az.csv")
+#write_as_csv(ca20,"elxn_ca.csv")
+#write_as_csv(cn20,"elxn_cn.csv")
+#write_as_csv(co20,"elxn_co.csv")
+#write_as_csv(dc20,"elxn_dc.csv")
+#write_as_csv(de20,"elxn_de.csv")
+#write_as_csv(fl20,"elxn_fl.csv")
+#write_as_csv(ga20,"elxn_ga.csv")
+#write_as_csv(ia20,"elxn_ia.csv")
+#write_as_csv(id20,"elxn_id.csv")
+#write_as_csv(il20,"elxn_il.csv")
+#write_as_csv(in20,"elxn_in.csv")
+#write_as_csv(ks20,"elxn_ks.csv")
+#write_as_csv(ky20,"elxn_ky.csv")
+#write_as_csv(la20,"elxn_la.csv")
+#write_as_csv(ma20,"elxn_ma.csv")
+#write_as_csv(md20,"elxn_md.csv")
+#write_as_csv(me20,"elxn_me.csv")
+#write_as_csv(mi20,"elxn_mi.csv")
+#write_as_csv(mn20,"elxn_mn.csv")
+#write_as_csv(mo20,"elxn_mo.csv")
+#write_as_csv(ms20,"elxn_ms.csv")
+#write_as_csv(mt20,"elxn_mt.csv")
+#write_as_csv(nc20,"elxn_nc.csv")
+#write_as_csv(nd20,"elxn_nd.csv")
+#write_as_csv(ne20,"elxn_ne.csv")
+#write_as_csv(nh20,"elxn_nh.csv")
+#write_as_csv(nj20,"elxn_nj.csv")
+#write_as_csv(nm20,"elxn_nm.csv")
+#write_as_csv(nv20,"elxn_nv.csv")
+#write_as_csv(ny20,"elxn_ny.csv")
+#write_as_csv(oh20,"elxn_oh.csv")
+#write_as_csv(ok20,"elxn_ok.csv")
+#write_as_csv(or20,"elxn_or.csv")
+#write_as_csv(pa20,"elxn_pa.csv")
+#write_as_csv(ri20,"elxn_ri.csv")
+#write_as_csv(sc20,"elxn_sc.csv")
+#write_as_csv(sd20,"elxn_sd.csv")
+#write_as_csv(tn20,"elxn_tn.csv")
+#write_as_csv(tx20,"elxn_tx.csv")
+#write_as_csv(ut20,"elxn_ut.csv")
+#write_as_csv(va20,"elxn_va.csv")
+#write_as_csv(vt20,"elxn_vt.csv")
+#write_as_csv(wa20,"elxn_wa.csv")
+#write_as_csv(wi20,"elxn_wi.csv")
+#write_as_csv(wv20,"elxn_wv.csv")
+#write_as_csv(wy20,"elxn_wy.csv")
+
+#write_as_csv(exn_al,"elxn_al.csv")
+#write_as_csv(exn_ar,"elxn_ar.csv")
+#write_as_csv(exn_az,"elxn_az.csv")
+#write_as_csv(exn_ca,"elxn_ca.csv")
+#write_as_csv(exn_cn,"elxn_cn.csv")
+#write_as_csv(exn_co,"elxn_co.csv")
+#write_as_csv(exn_dc,"elxn_dc.csv")
+#write_as_csv(exn_de,"elxn_de.csv")
+#write_as_csv(exn_fl,"elxn_fl.csv")
+#write_as_csv(exn_ga,"elxn_ga.csv")
+#write_as_csv(exn_ia,"elxn_ia.csv")
+#write_as_csv(exn_id,"elxn_id.csv")
+#write_as_csv(exn_il,"elxn_il.csv")
+#write_as_csv(exn_in,"elxn_in.csv")
+#write_as_csv(exn_ks,"elxn_ks.csv")
+#write_as_csv(exn_ky,"elxn_ky.csv")
+#write_as_csv(exn_la,"elxn_la.csv")
+#write_as_csv(exn_ma,"elxn_ma.csv")
+#write_as_csv(exn_md,"elxn_md.csv")
+#write_as_csv(exn_me,"elxn_me.csv")
+#write_as_csv(exn_mi,"elxn_mi.csv")
+#write_as_csv(exn_mn,"elxn_mn.csv")
+#write_as_csv(exn_mo,"elxn_mo.csv")
+#write_as_csv(exn_ms,"elxn_ms.csv")
+#write_as_csv(exn_mt,"elxn_mt.csv")
+#write_as_csv(exn_nc,"elxn_nc.csv")
+#write_as_csv(exn_nd,"elxn_nd.csv")
+#write_as_csv(exn_ne,"elxn_ne.csv")
+#write_as_csv(exn_nh,"elxn_nh.csv")
+#write_as_csv(exn_nj,"elxn_nj.csv")
+#write_as_csv(exn_nm,"elxn_nm.csv")
+#write_as_csv(exn_nv,"elxn_nv.csv")
+#write_as_csv(exn_ny,"elxn_ny.csv")
+#write_as_csv(exn_oh,"elxn_oh.csv")
+#write_as_csv(exn_ok,"elxn_ok.csv")
+#write_as_csv(exn_or,"elxn_or.csv")
+#write_as_csv(exn_pa,"elxn_pa.csv")
+#write_as_csv(exn_ri,"elxn_ri.csv")
+#write_as_csv(exn_sc,"elxn_sc.csv")
+#write_as_csv(exn_sd,"elxn_sd.csv")
+#write_as_csv(exn_tn,"elxn_tn.csv")
+#write_as_csv(exn_tx,"elxn_tx.csv")
+#write_as_csv(exn_ut,"elxn_ut.csv")
+#write_as_csv(exn_va,"elxn_va.csv")
+#write_as_csv(exn_vt,"elxn_vt.csv")
+#write_as_csv(exn_wa,"elxn_wa.csv")
+#write_as_csv(exn_wi,"elxn_wi.csv")
+#write_as_csv(exn_wv,"elxn_wv.csv")
+#write_as_csv(exn_wy,"elxn_wy.csv")
+```
+
+## Clean all required data
+```{r}
+##READ IN CSV FILES FROM ZIPPED data file
+
+exn_al<-read.csv("elxn_al.csv")
+exn_ar<-read.csv("elxn_ar.csv")
+exn_az<-read.csv("elxn_az.csv")
+exn_ca<-read.csv("elxn_ca.csv")
+exn_cn<-read.csv("elxn_cn.csv")
+exn_co<-read.csv("elxn_co.csv")
+exn_dc<-read.csv("elxn_dc.csv")
+exn_de<-read.csv("elxn_de.csv")
+exn_fl<-read.csv("elxn_fl.csv")
+exn_ga<-read.csv("elxn_ga.csv")
+exn_ia<-read.csv("elxn_ia.csv")
+exn_id<-read.csv("elxn_id.csv")
+exn_il<-read.csv("elxn_il.csv")
+exn_in<-read.csv("elxn_in.csv")
+exn_ks<-read.csv("elxn_ks.csv")
+exn_ky<-read.csv("elxn_ky.csv")
+exn_la<-read.csv("elxn_la.csv")
+exn_ma<-read.csv("elxn_ma.csv")
+exn_md<-read.csv("elxn_md.csv")
+exn_me<-read.csv("elxn_me.csv")
+exn_mi<-read.csv("elxn_mi.csv")
+exn_mn<-read.csv("elxn_mn.csv")
+exn_mo<-read.csv("elxn_mo.csv")
+exn_ms<-read.csv("elxn_ms.csv")
+exn_mt<-read.csv("elxn_mt.csv")
+exn_nc<-read.csv("elxn_nc.csv")
+exn_nd<-read.csv("elxn_nd.csv")
+exn_ne<-read.csv("elxn_ne.csv")
+exn_nh<-read.csv("elxn_nh.csv")
+exn_nj<-read.csv("elxn_nj.csv")
+exn_nm<-read.csv("elxn_nm.csv")
+exn_nv<-read.csv("elxn_nv.csv")
+exn_ny<-read.csv("elxn_ny.csv")
+exn_oh<-read.csv("elxn_oh.csv")
+exn_ok<-read.csv("elxn_ok.csv")
+exn_or<-read.csv("elxn_or.csv")
+exn_pa<-read.csv("elxn_pa.csv")
+exn_ri<-read.csv("elxn_ri.csv")
+exn_sc<-read.csv("elxn_sc.csv")
+exn_sd<-read.csv("elxn_sd.csv")
+exn_tn<-read.csv("elxn_tn.csv")
+exn_tx<-read.csv("elxn_tx.csv")
+exn_ut<-read.csv("elxn_ut.csv")
+exn_va<-read.csv("elxn_va.csv")
+exn_vt<-read.csv("elxn_vt.csv")
+exn_wa<-read.csv("elxn_wa.csv")
+exn_wi<-read.csv("elxn_wi.csv")
+exn_wv<-read.csv("elxn_wv.csv")
+exn_wy<-read.csv("elxn_wy.csv")
+
+#FORMATTING DATA FRAME
+
+txt_al<-tibble(1:6883,exn_al$text)
+names(txt_al)<-c("tweet","text")
+txt_al$location<-"Alabama"
+txt_ar<-tibble(1:6237,exn_ar$text)
+names(txt_ar)<-c("tweet","text")
+txt_ar$location<-"Arkansas"
+txt_az<-tibble(1:6285,exn_az$text)
+names(txt_az)<-c("tweet","text")
+txt_az$location<-"Arizona"
+txt_ca<-tibble(1:6252,exn_ca$text)
+names(txt_ca)<-c("tweet","text")
+txt_ca$location<-"California"
+txt_cn<-tibble(1:6434,exn_cn$text)
+names(txt_cn)<-c("tweet","text")
+txt_cn$location<-"Connecticut"
+txt_co<-tibble(1:6386,exn_co$text)
+names(txt_co)<-c("tweet","text")
+txt_co$location<-"Colorado"
+txt_dc<-tibble(1:6451,exn_dc$text)
+names(txt_dc)<-c("tweet","text")
+txt_dc$location<-"District of Columbia"
+txt_de<-tibble(1:6407,exn_de$text)
+names(txt_de)<-c("tweet","text")
+txt_de$location<-"Delaware"
+txt_fl<-tibble(1:6312,exn_fl$text)
+names(txt_fl)<-c("tweet","text")
+txt_fl$location<-"Florida"
+txt_ga<-tibble(1:6950,exn_ga$text)
+names(txt_ga)<-c("tweet","text")
+txt_ga$location<-"Georgia"
+txt_ia<-tibble(1:6449,exn_ia$text)
+names(txt_ia)<-c("tweet","text")
+txt_ia$location<-"Iowa"
+txt_id<-tibble(1:6336,exn_id$text)
+names(txt_id)<-c("tweet","text")
+txt_id$location<-"Idaho"
+txt_il<-tibble(1:6641,exn_il$text)
+names(txt_il)<-c("tweet","text")
+txt_il$location<-"Illonois"
+txt_in<-tibble(1:6568,exn_in$text)
+names(txt_in)<-c("tweet","text")
+txt_in$location<-"Indiana"
+txt_ks<-tibble(1:6598,exn_ks$text)
+names(txt_ks)<-c("tweet","text")
+txt_ks$location<-"Kansas"
+txt_ky<-tibble(1:6614,exn_ky$text)
+names(txt_ky)<-c("tweet","text")
+txt_ky$location<-"Kentucky"
+txt_la<-tibble(1:6547,exn_la$text)
+names(txt_la)<-c("tweet","text")
+txt_la$location<-"Louisiana"
+txt_ma<-tibble(1:6398,exn_ma$text)
+names(txt_ma)<-c("tweet","text")
+txt_ma$location<-"Massachusetts"
+txt_md<-tibble(1:6403,exn_md$text)
+names(txt_md)<-c("tweet","text")
+txt_md$location<-"Maryland"
+txt_me<-tibble(1:6453,exn_me$text)
+names(txt_me)<-c("tweet","text")
+txt_me$location<-"Maine"
+txt_mi<-tibble(1:6374,exn_mi$text)
+names(txt_mi)<-c("tweet","text")
+txt_mi$location<-"Michigan"
+txt_mn<-tibble(1:7172,exn_mn$text)
+names(txt_mn)<-c("tweet","text")
+txt_mn$location<-"Minnesota"
+txt_mo<-tibble(1:6923,exn_mo$text)
+names(txt_mo)<-c("tweet","text")
+txt_mo$location<-"Missouri"
+txt_ms<-tibble(1:6863,exn_ms$text)
+names(txt_ms)<-c("tweet","text")
+txt_ms$location<-"Mississippi"
+txt_mt<-tibble(1:6814,exn_mt$text)
+names(txt_mt)<-c("tweet","text")
+txt_mt$location<-"Montana"
+txt_nc<-tibble(1:6622,exn_nc$text)
+names(txt_nc)<-c("tweet","text")
+txt_nc$location<-"North Carolina"
+txt_nd<-tibble(1:6743,exn_nd$text)
+names(txt_nd)<-c("tweet","text")
+txt_nd$location<-"North Dakota"
+txt_ne<-tibble(1:6752,exn_ne$text)
+names(txt_ne)<-c("tweet","text")
+txt_ne$location<-"Nebraska"
+txt_nh<-tibble(1:6711,exn_nh$text)
+names(txt_nh)<-c("tweet","text")
+txt_nh$location<-"New Hampshire"
+txt_nj<-tibble(1:6618,exn_nj$text)
+names(txt_nj)<-c("tweet","text")
+txt_nj$location<-"New Jersey"
+txt_nm<-tibble(1:6736,exn_nm$text)
+names(txt_nm)<-c("tweet","text")
+txt_nm$location<-"New Mexico"
+txt_nv<-tibble(1:6631,exn_nv$text)
+names(txt_nv)<-c("tweet","text")
+txt_nv$location<-"Nevada"
+txt_ny<-tibble(1:6532,exn_ny$text)
+names(txt_ny)<-c("tweet","text")
+txt_ny$location<-"New York"
+txt_oh<-tibble(1:6527,exn_oh$text)
+names(txt_oh)<-c("tweet","text")
+txt_oh$location<-"Ohio"
+txt_ok<-tibble(1:6449,exn_ok$text)
+names(txt_ok)<-c("tweet","text")
+txt_ok$location<-"Oklahoma"
+txt_or<-tibble(1:6431,exn_or$text)
+names(txt_or)<-c("tweet","text")
+txt_or$location<-"Oregon"
+txt_pa<-tibble(1:6656,exn_pa$text)
+names(txt_pa)<-c("tweet","text")
+txt_pa$location<-"Pennsylvania"
+txt_ri<-tibble(1:6419,exn_ri$text)
+names(txt_ri)<-c("tweet","text")
+txt_ri$location<-"Rhode Island"
+txt_sc<-tibble(1:6450,exn_sc$text)
+names(txt_sc)<-c("tweet","text")
+txt_sc$location<-"South Carolina"
+txt_sd<-tibble(1:6476,exn_sd$text)
+names(txt_sd)<-c("tweet","text")
+txt_sd$location<-"South Dakota"
+txt_tn<-tibble(1:6500,exn_tn$text)
+names(txt_tn)<-c("tweet","text")
+txt_tn$location<-"Tennessee"
+txt_tx<-tibble(1:6180,exn_tx$text)
+names(txt_tx)<-c("tweet","text")
+txt_tx$location<-"Texas"
+txt_ut<-tibble(1:6207,exn_ut$text)
+names(txt_ut)<-c("tweet","text")
+txt_ut$location<-"Utah"
+txt_va<-tibble(1:6273,exn_va$text)
+names(txt_va)<-c("tweet","text")
+txt_va$location<-"Virginia"
+txt_vt<-tibble(1:6543,exn_vt$text)
+names(txt_vt)<-c("tweet","text")
+txt_vt$location<-"Vermont"
+txt_wa<-tibble(1:6349,exn_wa$text)
+names(txt_wa)<-c("tweet","text")
+txt_wa$location<-"Washington"
+txt_wi<-tibble(1:6102,exn_wi$text)
+names(txt_wi)<-c("tweet","text")
+txt_wi$location<-"Wisconsin"
+txt_wv<-tibble(1:6380,exn_wv$text)
+names(txt_wv)<-c("tweet","text")
+txt_wv$location<-"West Virginia"
+txt_wy<-tibble(1:6186,exn_wy$text)
+names(txt_wy)<-c("tweet","text")
+txt_wy$location<-"Wyoming"
+
+## NLP SETUP
+
+stop_twitter<-as.data.frame(c("https","t.co","rt","amp"))
+stop_candidate<-as.data.frame(c("trump","biden","election"))
+names(stop_twitter)<-"word"
+names(stop_candidate)<-"word"
+
+data("us_states")
+states_us<-us_states
+albers="+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+
+nrc<-get_sentiments("nrc")
+bing<-get_sentiments("bing")
+afinn<-get_sentiments("afinn")
+
+mean_afinn<-function(afinn_state){
+  avg_state<-mean(afinn_state$value)
+  return(avg_state)
+}
+
+## ALL STATES
+
+all_states<-rbind(txt_al,txt_ar,txt_az,txt_ca,txt_cn,txt_co,txt_dc,txt_de,txt_fl,txt_ga,txt_ia,txt_id,txt_il,txt_in,txt_ks,txt_ky,txt_la,txt_ma,txt_md,txt_me,txt_mi,txt_mn,txt_mo,txt_ms,txt_mt,txt_nc,txt_nd,txt_ne,txt_nh,txt_nj,txt_nm,txt_nv,txt_ny,txt_oh,txt_ok,txt_or,txt_pa,txt_ri,txt_sc,txt_sd,txt_tn,txt_tx,txt_ut,txt_va,txt_vt,txt_wa,txt_wi,txt_wy)
+all_states[]<-lapply(all_states,as.character)
+untk_states<-all_states%>%
+  unnest_tokens(word,text)
+
+sw_states<-untk_states%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)
+
+#NATIONAL WORD FREQUENCY
+count_states<-sw_states%>%
+  count(word,sort=TRUE)%>%
+  head(12)
+print(count_states)
+
+#NATIONAL SENTIMENT
+nrc_states<-sw_states%>%
+  inner_join(nrc)%>%
+  count(sentiment,sort=TRUE)
+print(nrc_states)
+
+afinn_states<-sw_states%>%
+  inner_join(afinn)
+
+## EACH STATE
+
+txt_al[]<-lapply(txt_al,as.character)
+untk_al<-txt_al%>%
+    unnest_tokens(word,text)%>%
+    anti_join(stop_words)%>%
+    anti_join(stop_twitter)%>%
+    anti_join(stop_candidate)%>%
+    inner_join(afinn)
+untk_al$meanVal<-mean_afinn(untk_al)
+avg_al<-mean_afinn(untk_al)
+
+txt_ar[]<-lapply(txt_ar,as.character)
+untk_ar<-txt_ar%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ar$meanVal<-mean_afinn(untk_ar)
+avg_ar<-mean_afinn(untk_ar)
+
+txt_az[]<-lapply(txt_az,as.character)
+untk_az<-txt_az%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_az$meanVal<-mean_afinn(untk_az)
+avg_az<-mean_afinn(untk_az)
+
+txt_ca[]<-lapply(txt_ca,as.character)
+untk_ca<-txt_ca%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ca$meanVal<-mean_afinn(untk_ca)
+avg_ca<-mean_afinn(untk_ca)
+
+txt_cn[]<-lapply(txt_cn,as.character)
+untk_cn<-txt_cn%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_cn$meanVal<-mean_afinn(untk_cn)
+avg_cn<-mean_afinn(untk_cn)
+
+txt_co[]<-lapply(txt_co,as.character)
+untk_co<-txt_co%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_co$meanVal<-mean_afinn(untk_co)
+avg_co<-mean_afinn(untk_co)
+
+txt_dc[]<-lapply(txt_dc,as.character)
+untk_dc<-txt_dc%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_dc$meanVal<-mean_afinn(untk_dc)
+avg_dc<-mean_afinn(untk_dc)
+
+txt_de[]<-lapply(txt_de,as.character)
+untk_de<-txt_de%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_de$meanVal<-mean_afinn(untk_de)
+avg_de<-mean_afinn(untk_de)
+
+txt_fl[]<-lapply(txt_fl,as.character)
+untk_fl<-txt_fl%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_fl$meanVal<-mean_afinn(untk_fl)
+avg_fl<-mean_afinn(untk_fl)
+
+txt_ga[]<-lapply(txt_ga,as.character)
+untk_ga<-txt_ga%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ga$meanVal<-mean_afinn(untk_ga)
+avg_ga<-mean_afinn(untk_ga)
+
+txt_ia[]<-lapply(txt_ia,as.character)
+untk_ia<-txt_ia%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ia$meanVal<-mean_afinn(untk_ia)
+avg_ia<-mean_afinn(untk_ia)
+
+txt_id[]<-lapply(txt_id,as.character)
+untk_id<-txt_id%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_id$meanVal<-mean_afinn(untk_id)
+avg_id<-mean_afinn(untk_id)
+
+txt_il[]<-lapply(txt_il,as.character)
+untk_il<-txt_il%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_il$meanVal<-mean_afinn(untk_il)
+avg_il<-mean_afinn(untk_il)
+
+txt_in[]<-lapply(txt_in,as.character)
+untk_in<-txt_in%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_in$meanVal<-mean_afinn(untk_in)
+avg_in<-mean_afinn(untk_in)
+
+txt_ks[]<-lapply(txt_ks,as.character)
+untk_ks<-txt_ks%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ks$meanVal<-mean_afinn(untk_ks)
+avg_ks<-mean_afinn(untk_ks)
+
+txt_ky[]<-lapply(txt_ky,as.character)
+untk_ky<-txt_ky%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ky$meanVal<-mean_afinn(untk_ky)
+avg_ky<-mean_afinn(untk_ky)
+
+txt_la[]<-lapply(txt_la,as.character)
+untk_la<-txt_la%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_la$meanVal<-mean_afinn(untk_la)
+avg_la<-mean_afinn(untk_la)
+
+txt_ma[]<-lapply(txt_ma,as.character)
+untk_ma<-txt_ma%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ma$meanVal<-mean_afinn(untk_ma)
+avg_ma<-mean_afinn(untk_ma)
+
+txt_md[]<-lapply(txt_md,as.character)
+untk_md<-txt_md%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_md$meanVal<-mean_afinn(untk_md)
+avg_md<-mean_afinn(untk_md)
+
+txt_me[]<-lapply(txt_me,as.character)
+untk_me<-txt_me%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_me$meanVal<-mean_afinn(untk_me)
+avg_me<-mean_afinn(untk_me)
+
+txt_mi[]<-lapply(txt_mi,as.character)
+untk_mi<-txt_mi%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_mi$meanVal<-mean_afinn(untk_mi)
+avg_mi<-mean_afinn(untk_mi)
+
+txt_mn[]<-lapply(txt_mn,as.character)
+untk_mn<-txt_mn%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_mn$meanVal<-mean_afinn(untk_mn)
+avg_mn<-mean_afinn(untk_mn)
+
+txt_mo[]<-lapply(txt_mo,as.character)
+untk_mo<-txt_mo%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_mo$meanVal<-mean_afinn(untk_mo)
+avg_mo<-mean_afinn(untk_mo)
+
+txt_ms[]<-lapply(txt_ms,as.character)
+untk_ms<-txt_ms%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ms$meanVal<-mean_afinn(untk_ms)
+avg_ms<-mean_afinn(untk_ms)
+
+txt_mt[]<-lapply(txt_mt,as.character)
+untk_mt<-txt_mt%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_mt$meanVal<-mean_afinn(untk_mt)
+avg_mt<-mean_afinn(untk_mt)
+
+txt_nc[]<-lapply(txt_nc,as.character)
+untk_nc<-txt_nc%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_nc$meanVal<-mean_afinn(untk_nc)
+avg_nc<-mean_afinn(untk_nc)
+
+txt_nd[]<-lapply(txt_nd,as.character)
+untk_nd<-txt_nd%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_nd$meanVal<-mean_afinn(untk_nd)
+avg_nd<-mean_afinn(untk_nd)
+
+txt_ne[]<-lapply(txt_ne,as.character)
+untk_ne<-txt_ne%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ne$meanVal<-mean_afinn(untk_ne)
+avg_ne<-mean_afinn(untk_ne)
+
+txt_nh[]<-lapply(txt_nh,as.character)
+untk_nh<-txt_nh%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_nh$meanVal<-mean_afinn(untk_nh)
+avg_nh<-mean_afinn(untk_nh)
+
+txt_nj[]<-lapply(txt_nj,as.character)
+untk_nj<-txt_nj%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_nj$meanVal<-mean_afinn(untk_nj)
+avg_nj<-mean_afinn(untk_nj)
+
+txt_nm[]<-lapply(txt_nm,as.character)
+untk_nm<-txt_nm%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_nm$meanVal<-mean_afinn(untk_nm)
+avg_nm<-mean_afinn(untk_nm)
+
+txt_nv[]<-lapply(txt_nv,as.character)
+untk_nv<-txt_nv%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_nv$meanVal<-mean_afinn(untk_nv)
+avg_nv<-mean_afinn(untk_nv)
+
+txt_ny[]<-lapply(txt_ny,as.character)
+untk_ny<-txt_ny%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ny$meanVal<-mean_afinn(untk_ny)
+avg_ny<-mean_afinn(untk_ny)
+
+txt_oh[]<-lapply(txt_oh,as.character)
+untk_oh<-txt_oh%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_oh$meanVal<-mean_afinn(untk_oh)
+avg_oh<-mean_afinn(untk_oh)
+
+txt_ok[]<-lapply(txt_ok,as.character)
+untk_ok<-txt_ok%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ok$meanVal<-mean_afinn(untk_ok)
+avg_ok<-mean_afinn(untk_ok)
+
+txt_or[]<-lapply(txt_or,as.character)
+untk_or<-txt_or%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_or$meanVal<-mean_afinn(untk_or)
+avg_or<-mean_afinn(untk_or)
+
+txt_pa[]<-lapply(txt_pa,as.character)
+untk_pa<-txt_pa%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_pa$meanVal<-mean_afinn(untk_pa)
+avg_pa<-mean_afinn(untk_pa)
+
+txt_ri[]<-lapply(txt_ri,as.character)
+untk_ri<-txt_ri%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ri$meanVal<-mean_afinn(untk_ri)
+avg_ri<-mean_afinn(untk_ri)
+
+txt_sc[]<-lapply(txt_sc,as.character)
+untk_sc<-txt_sc%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_sc$meanVal<-mean_afinn(untk_sc)
+avg_sc<-mean_afinn(untk_sc)
+
+txt_sd[]<-lapply(txt_sd,as.character)
+untk_sd<-txt_sd%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_sd$meanVal<-mean_afinn(untk_sd)
+avg_sd<-mean_afinn(untk_sd)
+
+txt_tn[]<-lapply(txt_tn,as.character)
+untk_tn<-txt_tn%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_tn$meanVal<-mean_afinn(untk_tn)
+avg_tn<-mean_afinn(untk_tn)
+
+txt_tx[]<-lapply(txt_tx,as.character)
+untk_tx<-txt_tx%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_tx$meanVal<-mean_afinn(untk_tx)
+avg_tx<-mean_afinn(untk_tx)
+
+txt_ut[]<-lapply(txt_ut,as.character)
+untk_ut<-txt_ut%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_ut$meanVal<-mean_afinn(untk_ut)
+avg_ut<-mean_afinn(untk_ut)
+
+txt_va[]<-lapply(txt_va,as.character)
+untk_va<-txt_va%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_va$meanVal<-mean_afinn(untk_va)
+avg_va<-mean_afinn(untk_va)
+
+txt_vt[]<-lapply(txt_vt,as.character)
+untk_vt<-txt_vt%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_vt$meanVal<-mean_afinn(untk_vt)
+avg_vt<-mean_afinn(untk_vt)
+
+txt_wa[]<-lapply(txt_wa,as.character)
+untk_wa<-txt_wa%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_wa$meanVal<-mean_afinn(untk_wa)
+avg_wa<-mean_afinn(untk_wa)
+
+txt_wi[]<-lapply(txt_wi,as.character)
+untk_wi<-txt_wi%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_wi$meanVal<-mean_afinn(untk_wi)
+avg_wi<-mean_afinn(untk_wi)
+
+txt_wv[]<-lapply(txt_wv,as.character)
+untk_wv<-txt_wv%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_wv$meanVal<-mean_afinn(untk_wv)
+avg_wv<-mean_afinn(untk_wv)
+
+txt_wy[]<-lapply(txt_wy,as.character)
+untk_wy<-txt_wy%>%
+  unnest_tokens(word,text)%>%
+  anti_join(stop_words)%>%
+  anti_join(stop_twitter)%>%
+  anti_join(stop_candidate)%>%
+  inner_join(afinn)
+untk_wy$meanVal<-mean_afinn(untk_wy)
+avg_wy<-mean_afinn(untk_wy)
+```
+
+## Maps
+```{r, results='asis'}
+## MAP MAKING
+
+afinn_eachState_list<-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),1)
+state_names<-c("Alabama","Arkansas","Arizona","California","Connecticut","Colorado","District of Columbia","Delaware","Florida","Georgia","Iowa","Idaho","Illinois","Indiana","Kansas","Kentucky","Louisiana","Massachusetts","Maryland","Maine","Michigan","Minnesota","Missouri","Mississippi","Montana","North Carolina","North Dakota","Nebraska","New Hampshire","New Jersey","New Mexico","Nevada","New York","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Virginia","Vermont","Washington","Wisconsin","West Virginia","Wyoming")
+state_ecv<-as.numeric(c("9","6","11","55","7","9","3","3","29","16","6","4","20","11","6","8","8","11","10","4","16","10","10","6","3","15","3","5","4","14","5","6","29","18","7","7","20","4","9","3","11","38","6","13","3","12","10","5","3"))
+state_result<-as.vector(c("R","R","D","D","D","D","D","D","R","D","R","R","D","R","R","R","R","D","D","D","D","D","R","R","R","R","R","R","D","D","D","D","D","R","R","D","D","D","R","R","R","R","R","D","D","D","D","R","R"))
+state_swing<-as.vector(c("R","R","S","D","D","D","D","D","S","S","S","R","D","R","R","R","R","D","D","D","S","S","R","R","R","R","R","R","S","D","S","S","D","R","R","D","S","D","R","R","R","S","R","D","D","D","S","R","R"))
+#https://ballotpedia.org/U.S._House_battlegrounds,_2020
+tUp_house<-as.numeric(c("1","1","1","2","0","0","0","0","0","0","2","0","1","1","0","0","0","0","0","0","1","2","1","0","0","0","0","1","0","1","1","0","4","1","1","0","1","0","0","0","0","3","1","1","0","0","0","0","0"))
+house_swing<-tUp_house*.25
+
+states_afinn<-tibble(state_names,afinn_eachState_list,state_result,state_ecv,state_swing,tUp_house,house_swing)
+names(states_afinn)<-c("NAME","AFINN","RESULT","EC_VOTES","SWING_FORECAST","TOSS_UP","TU_alpha")
+states_us<-states_us[order(states_us$NAME),]
+us_states_afinn<-merge(states_us,states_afinn,by="NAME")
+
+us_states_afinn$REP_PER_POP<-us_states_afinn$EC_VOTES/us_states_afinn$total_pop_15
+sum_rep<-sum(us_states_afinn$REP_PER_POP)
+us_states_afinn$VOTE_WEIGHT<-round(as.numeric((us_states_afinn$REP_PER_POP/sum_rep)*10),2)
+
+trans_states<-st_transform(us_states_afinn,albers)
+shape_states<-tm_shape(trans_states)+
+  tm_borders(col="black")+
+  tm_layout(main.title="AFINN Sentiments of 2020 Election",main.title.position="center",frame=F)+
+  tm_polygons('AFINN',midpoint=NA)
+
+#SENTIMENT MAP (TMAPS: https://tlorusso.github.io/geodata_workshop/tmap_package)
+shape_states
+
+swing_col<-c("powderblue","lightpink","lavender")
+result_col<-c("blue","red")
+
+trans_states<-st_transform(us_states_afinn,albers)
+bubbles_states<-tm_shape(trans_states)+
+  tm_layout(main.title="Forecasts, Results, and Votes in 2020",
+            main.title.position=c("left","top"))+
+  tm_bubbles(size="EC_VOTES",
+             col="SWING_FORECAST",
+             midpoint=NA,
+             palette=swing_col,
+             legend.hist=TRUE,
+             scale=4)+
+  tm_shape(trans_states)+
+  tm_bubbles(size=0.25,
+             col="RESULT",
+             midpoint=NA,
+             alpha=0.7,
+             scale=1,
+             palette=result_col,
+             legend.hist=TRUE)+
+  tm_layout(legend.position = c(0.1,0.1),
+            legend.outside=TRUE,
+            frame=FALSE)
+
+#FORECAST RESULT AND OUTCOME MAP  
+bubbles_states
+
+#HEXGRID TUTORIAL: https://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
+library(tidyverse)
+library(geojsonio)
+library(RColorBrewer)
+library(rgdal)
+library(broom)
+library(rgeos)
+library(mapproj)
+library(viridis)
+
+my_palette <- c("turquoise","salmon")
+my_palette2 <- c("turquoise","salmon","violet")
+my_palette3<-rev(magma(20))
+my_palette4<-magma(8)
+
+hex_ec_voteWeight
+hex_ec_forecast
+hex_ec_swingHouse
+hex_ec_concentration
+
+#LOAD IN HEXGRID US: https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map
+spdf <- geojson_read("us_states_hexgrid.geojson",  what = "sp")
+spdf@data = spdf@data %>%
+  mutate(google_name = gsub(" \\(United States\\)", "", google_name))
+plot(spdf)
+
+spdf@data = spdf@data %>% mutate(google_name = gsub(" \\(United States\\)", "", google_name))
+spdf_fortified <- tidy(spdf, region = "google_name")
+names(spdf_fortified)<-c("long","lat","order","hole","piece","group","NAME")
+spdf_fort_noHIAK<-spdf_fortified[-c(8:14,78:84),]
+spdf_fort_L48<-merge(spdf_fort_noHIAK,us_states_afinn,by="NAME")
+t_ec<-sum(state_ecv)
+#Messed with algorithm to make alphas appear visually
+spdf_fort_L48$EC_WT<-(round((spdf_fort_L48$EC_VOTES/t_ec),3)*10)+.2
+
+# Calculate the centroid of each hexagon to add the label:
+centers <- cbind.data.frame(data.frame(gCentroid(spdf, byid=TRUE), id=spdf@data$iso3166_2))
+cntr<-centers[-c(27,50),]
+
+#MAKING PLOTS
+hex_ec_voteWeight<-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=RESULT, x = long, y = lat, group = group,alpha=VOTE_WEIGHT+0.2))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette, 
+    name="2020 Election", 
+    guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  scale_alpha_identity(
+    name="Weight in EC",
+    guide = guide_legend(keyheight = unit(3, units = "mm"),
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( "Citizen Vote Weight \nin Electoral College" ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = "#22211d"),
+    plot.background = element_rect(fill = "ivory", color = NA), 
+    panel.background = element_rect(fill = "ivory", color = NA), 
+    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.title = element_text(size= 22, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
+  )
+
+hex_ec_forecast<-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=EC_WT))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette2, 
+    name="Dem / Rep / Swing", 
+    guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  scale_alpha_identity(
+    name="Electoral College Points \n Share x 10",
+    guide = guide_legend(keyheight = unit(3, units = "mm"),
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( "2020 Electoral College \nForecasted Votes" ) +
+  theme(
+    legend.position = c(0.7, 1.0),
+    text = element_text(color = "#22211d"),
+    plot.background = element_rect(fill = "ivory", color = NA), 
+    panel.background = element_rect(fill = "ivory", color = NA), 
+    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.title.position="plot",
+    plot.title = element_text(size= 22, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
+  )
+
+hex_ec_swingHouse<-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=TU_alpha))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette2,
+    name="Dem / Rep / Swing", 
+    guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  scale_alpha_identity(
+    name="2020 Toss Up \nRaces per State",
+    guide = guide_legend(keyheight = unit(3, units = "mm"),
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( "Swing Races Per \nState from 0 to 4" ) +
+  theme(
+    legend.position = c(0.7, 1.0),
+    text = element_text(color = "#22211d"),
+    plot.background = element_rect(fill = "ivory", color = NA), 
+    panel.background = element_rect(fill = "ivory", color = NA), 
+    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.title.position="plot",
+    plot.title = element_text(size= 22, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
+  )
+
+spdf_fort_L48$ECbin<-cut(spdf_fort_L48$EC_VOTES,
+                         breaks=c(0,6,12,18,24,Inf), 
+                         labels=c("0-6","7-12","13-18","19-24","30+"), 
+                         include.lowest=TRUE)
+
+hex_ec_concentration<-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=ECbin, x = long, y = lat, group = group))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette3, 
+    name="Concentration", 
+    guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( "Electoral College" ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = "#22211d"),
+    plot.background = element_rect(fill = "ivory", color = NA), 
+    panel.background = element_rect(fill = "ivory", color = NA), 
+    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.title = element_text(size= 22, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
+  )
+
+hex_afinn<-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=as.factor(AFINN), x = long, y = lat, group = group))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id),color="white") +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette4, 
+    name="Sentiment + / -", 
+    guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                         keywidth=unit(12, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( "Tweet Sentiment by State" ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = "#22211d"),
+    plot.background = element_rect(fill = "ivory", color = NA), 
+    panel.background = element_rect(fill = "ivory", color = NA), 
+    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.title = element_text(size= 22, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
+  )
+hex_afinn
+```
+
+## Wordclouds
+```{r}
+#WORD CLOUDS https://towardsdatascience.com/create-a-word-cloud-with-r-bde3e7422e8a
+feel_swatch= ifelse(bing_swing$sentiment %in% "positive","red","darkgreen")
+set.seed(511)
+
+swing_wfqc<-rbind(untk_pa,untk_ga,untk_az,untk_fl,untk_ia,untk_mi,untk_mn,untk_nm,untk_nv,untk_tx,untk_wi)%>%
+  count(word,sort=TRUE)
+bing_swing<-swing_wfqc%>%
+  inner_join(bing)
+cloud_swing<-wordcloud(word=bing_swing$word,freq=bing_swing$n,min.freq=0,max.words=200,ordered.colors=F,random.order=F,colors=feel_swatch)
+
+pa_wfqc<-untk_pa%>%
+  count(word,sort=TRUE)
+bing_pa<-pa_wfqc%>%
+  inner_join(bing)
+cloud_pa<-wordcloud(word=bing_pa$word,freq=bing_pa$n,min.freq=0,max.words=200,ordered.colors=F,random.order=F,colors=feel_swatch)
+
+mn_wfqc<-untk_mn%>%
+  count(word,sort=TRUE)
+bing_mn<-mn_wfqc%>%
+  inner_join(bing)
+cloud_mn<-wordcloud(word=bing_mn$word,freq=bing_mn$n,min.freq=0,max.words=200,ordered.colors=F,random.order=F,colors=feel_swatch)
+
+wv_wfqc<-untk_wv%>%
+  count(word,sort=TRUE)
+bing_wv<-wv_wfqc%>%
+  inner_join(bing)
+cloud_wv<-wordcloud(word=bing_wv$word,freq=bing_wv$n,min.freq=0,max.words=200,ordered.colors=F,random.order=F,colors=feel_swatch)
+
+ga_wfqc<-untk_ga%>%
+  count(word,sort=TRUE)
+bing_ga<-ga_wfqc%>%
+  inner_join(bing)
+cloud_ga<-wordcloud(word=bing_ga$word,freq=bing_ga$n,min.freq=0,max.words=200,ordered.colors=F,random.order=F,colors=feel_swatch)
+```
+Add any additional processing steps here.
+
+# Results
+
+[~200 words]
+
+Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.
+
+Show tables, plots, etc. and describe them.
+
+```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
+m <- leaflet(data) %>% 
+  addTiles() %>% 
+  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
+  addPopups(~x[2], ~y[2], "Random popup")
+m  # a map with the default OSM tile layer
+```
+
+
+```{r}
+data %>% 
+  ggplot(aes(x=x,y=y,col=category))+
+  geom_point()
+```
+
+# Conclusions
+
+[~200 words]
+
+Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.
+
+# References
+
+All sources are cited in a consistent manner
