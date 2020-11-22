@@ -1,15 +1,15 @@
 ---
 title: "US Federal Election 2020"
 author: "Marko Lazin"
-subtitle: A brief look at Twitter Sentiments around the election, and the Electoral
-  College
+subtitle: Twitter Sentiments and the Electoral College
 ---
+
 
 # Introduction
 
-[~ 200 words]
+The United States Federal Election of 2020 has come and gone. This moment in United States history is being described by many contemporaries as rife with division and factionalism, with ideological perspectives assuming adversarial stances against one another. This framing of the present is simultaneously visceral and opaque, both concerning and difficult to contextualize / quantify. Describing this moment has traditionally been done with words, and in modern times has become decentralized with the advent and propagation of social media platforms.
 
-Clearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way.
+In the days and weeks following the November 4th, emotional on-lookers and participants have taken to social media platforms to voice their perspectives. This deluge of sentiment is abundant with information that may help to make sense of how political election information is being received across the United States. The remainder of this research is tasked at unpacking the voices of twitter users on the 13th and 14th of November following the election. Specifically this analysis will do two general things: set a backdrop, in numbers, of the electoral college mechanism; and dissect the words being used when discussing politics in the United States during this tiume period.
 
 # Materials and methods
 
@@ -34,12 +34,6 @@ You can do numbers like this:
 3. The third most important thing
 
 See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
-
-
-Here's my first code chunk.
-```{r}
-1+2
-```
 
 ## Required Packages
 
@@ -95,55 +89,55 @@ Example of collection and preparation of data below (but not part of script) for
 
 Load in data from unpacked zip file.
 ```{r}
-#txt_al<-read.csv("txt_al.csv")
-#txt_ar<-read.csv("txt_ar.csv")
-#txt_az<-read.csv("txt_az.csv")
-#txt_ca<-read.csv("txt_ca.csv")
-#txt_cn<-read.csv("txt_cn.csv")
-#txt_co<-read.csv("txt_co.csv")
-#txt_dc<-read.csv("txt_dc.csv")
-#txt_de<-read.csv("txt_de.csv")
-#txt_fl<-read.csv("txt_fl.csv")
-#txt_ga<-read.csv("txt_ga.csv")
-#txt_ia<-read.csv("txt_ia.csv")
-#txt_id<-read.csv("txt_id.csv")
-#txt_il<-read.csv("txt_il.csv")
-#txt_in<-read.csv("txt_in.csv")
-#txt_ks<-read.csv("txt_ks.csv")
-#txt_ky<-read.csv("txt_ky.csv")
-#txt_la<-read.csv("txt_la.csv")
-#txt_ma<-read.csv("txt_ma.csv")
-#txt_md<-read.csv("txt_md.csv")
-#txt_me<-read.csv("txt_me.csv")
-#txt_mi<-read.csv("txt_mi.csv")
-#txt_mn<-read.csv("txt_mn.csv")
-#txt_mo<-read.csv("txt_mo.csv")
-#txt_ms<-read.csv("txt_ms.csv")
-#txt_mt<-read.csv("txt_mt.csv")
-#txt_nc<-read.csv("txt_nc.csv")
-#txt_nd<-read.csv("txt_nd.csv")
-#txt_ne<-read.csv("txt_ne.csv")
-#txt_nh<-read.csv("txt_nh.csv")
-#txt_nj<-read.csv("txt_nj.csv")
-#txt_nm<-read.csv("txt_nm.csv")
-#txt_nv<-read.csv("txt_nv.csv")
-#txt_ny<-read.csv("txt_ny.csv")
-#txt_oh<-read.csv("txt_oh.csv")
-#txt_ok<-read.csv("txt_ok.csv")
-#txt_or<-read.csv("txt_or.csv")
-#txt_pa<-read.csv("txt_pa.csv")
-#txt_ri<-read.csv("txt_ri.csv")
-#txt_sc<-read.csv("txt_sc.csv")
-#txt_sd<-read.csv("txt_sd.csv")
-#txt_tn<-read.csv("txt_tn.csv")
-#txt_tx<-read.csv("txt_tx.csv")
-#txt_ut<-read.csv("txt_ut.csv")
-#txt_va<-read.csv("txt_va.csv")
-#txt_vt<-read.csv("txt_vt.csv")
-#txt_wa<-read.csv("txt_wa.csv")
-#txt_wi<-read.csv("txt_wi.csv")
-#txt_wv<-read.csv("txt_wv.csv")
-#txt_wy<-read.csv("txt_wy.csv")
+txt_al<-read.csv("txt_al.csv")
+txt_ar<-read.csv("txt_ar.csv")
+txt_az<-read.csv("txt_az.csv")
+txt_ca<-read.csv("txt_ca.csv")
+txt_cn<-read.csv("txt_cn.csv")
+txt_co<-read.csv("txt_co.csv")
+txt_dc<-read.csv("txt_dc.csv")
+txt_de<-read.csv("txt_de.csv")
+txt_fl<-read.csv("txt_fl.csv")
+txt_ga<-read.csv("txt_ga.csv")
+txt_ia<-read.csv("txt_ia.csv")
+txt_id<-read.csv("txt_id.csv")
+txt_il<-read.csv("txt_il.csv")
+txt_in<-read.csv("txt_in.csv")
+txt_ks<-read.csv("txt_ks.csv")
+txt_ky<-read.csv("txt_ky.csv")
+txt_la<-read.csv("txt_la.csv")
+txt_ma<-read.csv("txt_ma.csv")
+txt_md<-read.csv("txt_md.csv")
+txt_me<-read.csv("txt_me.csv")
+txt_mi<-read.csv("txt_mi.csv")
+txt_mn<-read.csv("txt_mn.csv")
+txt_mo<-read.csv("txt_mo.csv")
+txt_ms<-read.csv("txt_ms.csv")
+txt_mt<-read.csv("txt_mt.csv")
+txt_nc<-read.csv("txt_nc.csv")
+txt_nd<-read.csv("txt_nd.csv")
+txt_ne<-read.csv("txt_ne.csv")
+txt_nh<-read.csv("txt_nh.csv")
+txt_nj<-read.csv("txt_nj.csv")
+txt_nm<-read.csv("txt_nm.csv")
+txt_nv<-read.csv("txt_nv.csv")
+txt_ny<-read.csv("txt_ny.csv")
+txt_oh<-read.csv("txt_oh.csv")
+txt_ok<-read.csv("txt_ok.csv")
+txt_or<-read.csv("txt_or.csv")
+txt_pa<-read.csv("txt_pa.csv")
+txt_ri<-read.csv("txt_ri.csv")
+txt_sc<-read.csv("txt_sc.csv")
+txt_sd<-read.csv("txt_sd.csv")
+txt_tn<-read.csv("txt_tn.csv")
+txt_tx<-read.csv("txt_tx.csv")
+txt_ut<-read.csv("txt_ut.csv")
+txt_va<-read.csv("txt_va.csv")
+txt_vt<-read.csv("txt_vt.csv")
+txt_wa<-read.csv("txt_wa.csv")
+txt_wi<-read.csv("txt_wi.csv")
+txt_wv<-read.csv("txt_wv.csv")
+txt_wy<-read.csv("txt_wy.csv")
 ```
 
 ## NLP Setup
@@ -700,7 +694,7 @@ us_states_afinn$VOTE_WEIGHT<-round(as.numeric((us_states_afinn$REP_PER_POP/sum_r
 ```{r}
 #HEXGRID TUTORIAL: https://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
 #LOAD IN HEXGRID US: https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map
-#spdf<-geojson_read("us_states_hexgrid.geojson",what="sp")
+spdf<-geojson_read("us_states_hexgrid.geojson",what="sp")
 
 #import hex map data, turn into data frame, and edit names for later ease of use
 spdf@data=spdf@data%>%
@@ -753,9 +747,9 @@ hex_ec_forecast<-ggplot() +
   theme(
     legend.position = c(0.6, 1.0),
     text = element_text(color = "#22211d"),
-    plot.background = element_rect(fill = "ivory", color = NA), 
-    panel.background = element_rect(fill = "ivory", color = NA), 
-    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA), 
+    legend.background = element_rect(fill = "white", color = NA),
     plot.title.position="plot",
     plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
   )
@@ -786,9 +780,9 @@ hex_ec_swingHouse<-ggplot() +
   theme(
     legend.position = c(0.7, 1.0),
     text = element_text(color = "#22211d"),
-    plot.background = element_rect(fill = "ivory", color = NA), 
-    panel.background = element_rect(fill = "ivory", color = NA), 
-    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA), 
+    legend.background = element_rect(fill = "white", color = NA),
     plot.title.position="plot",
     plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
   )
@@ -820,9 +814,9 @@ hex_ec_voteWeight<-ggplot() +
   theme(
     legend.position = c(0.6, 1.0),
     text = element_text(color = "#22211d"),
-    plot.background = element_rect(fill = "ivory", color = NA), 
-    panel.background = element_rect(fill = "ivory", color = NA), 
-    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA), 
+    legend.background = element_rect(fill = "white", color = NA),
     plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
   )
 hex_ec_voteWeight
@@ -852,9 +846,9 @@ hex_ec_concentration<-ggplot() +
   theme(
     legend.position = c(0.6, 1.0),
     text = element_text(color = "#22211d"),
-    plot.background = element_rect(fill = "ivory", color = NA), 
-    panel.background = element_rect(fill = "ivory", color = NA), 
-    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA), 
+    legend.background = element_rect(fill = "white", color = NA),
     plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
   )
 hex_ec_concentration
@@ -878,9 +872,9 @@ hex_afinn<-ggplot() +
   theme(
     legend.position = c(0.6, 1.0),
     text = element_text(color = "#22211d"),
-    plot.background = element_rect(fill = "ivory", color = NA), 
-    panel.background = element_rect(fill = "ivory", color = NA), 
-    legend.background = element_rect(fill = "ivory", color = NA),
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA), 
+    legend.background = element_rect(fill = "white", color = NA),
     plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
   )
 hex_afinn
@@ -899,15 +893,17 @@ cloud_swing<-wordcloud(word=bing_swing$word,freq=bing_swing$n,min.freq=0,max.wor
 ```
 
 ## Pennsylvania
-```{r,message=FALSE}
+```{r,message=FALSE,include=FALSE}
 pa_wfqc<-untk_pa%>%
   count(word,sort=TRUE)
 bing_pa<-pa_wfqc%>%
   inner_join(bing)
 bing_pa$color<-ifelse(bing_pa$sentiment %in% "negative","red","darkgreen")
-
+```
+```{r}
 cloud_pa<-wordcloud(word=bing_pa$word,freq=bing_pa$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_pa$color)
 ```
+
 ## Minnesota
 ```{r,message=FALSE}
 mn_wfqc<-untk_mn%>%
@@ -918,6 +914,7 @@ bing_mn$color<-ifelse(bing_mn$sentiment %in% "negative","red","darkgreen")
 
 cloud_mn<-wordcloud(word=bing_mn$word,freq=bing_mn$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_mn$color)
 ```
+
 ## West Virginia
 ```{r,message=FALSE}
 wv_wfqc<-untk_wv%>%
@@ -928,6 +925,7 @@ bing_wv$color<-ifelse(bing_wv$sentiment %in% "negative","red","darkgreen")
 
 cloud_wv<-wordcloud(word=bing_wv$word,freq=bing_wv$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_wv$color)
 ```
+
 ## Georgia
 ```{r,message=FALSE}
 ga_wfqc<-untk_ga%>%
@@ -949,18 +947,18 @@ Tables and figures (maps and other graphics) are carefully planned to convey the
 Show tables, plots, etc. and describe them.
 
 ```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
-m <- leaflet(data) %>% 
-  addTiles() %>% 
-  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
-  addPopups(~x[2], ~y[2], "Random popup")
-m  # a map with the default OSM tile layer
+#m <- leaflet(data) %>% 
+#  addTiles() %>% 
+#  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
+#  addPopups(~x[2], ~y[2], "Random popup")
+#m  # a map with the default OSM tile layer
 ```
 
 
 ```{r}
-data %>% 
-  ggplot(aes(x=x,y=y,col=category))+
-  geom_point()
+#data %>% 
+#  ggplot(aes(x=x,y=y,col=category))+
+#  geom_point()
 ```
 
 # Conclusions
