@@ -4,39 +4,53 @@ author: "Marko Lazin"
 subtitle: Twitter Sentiments and the Electoral College
 ---
 
-
 # Introduction
 
 The United States Federal Election of 2020 has come and gone. This moment in United States history is being described by many contemporaries as rife with division and factionalism, with ideological perspectives assuming adversarial stances against one another. This framing of the present is simultaneously visceral and opaque, both concerning and difficult to contextualize / quantify. Describing this moment has traditionally been done with words, and in modern times has become decentralized with the advent and propagation of social media platforms.
 
-In the days and weeks following the November 4th, emotional on-lookers and participants have taken to social media platforms to voice their perspectives. This deluge of sentiment is abundant with information that may help to make sense of how political election information is being received across the United States. The remainder of this research is tasked at unpacking the voices of twitter users on the 13th and 14th of November following the election. Specifically this analysis will do two general things: set a backdrop, in numbers, of the electoral college mechanism; and dissect the words being used when discussing politics in the United States during this tiume period.
+In the days and weeks following the November 4th, emotional on-lookers and participants have taken to social media platforms to voice their perspectives. This deluge of sentiment is abundant with information that may help to make sense of how political election information is being received across the United States. The remainder of this research is tasked at unpacking the voices of twitter users on the 13th and 14th of November following the election. Specifically this analysis will do two general things: set a backdrop, in numbers, of the electoral college mechanism; and dissect the words being used when discussing politics in the United States during this time period.
 
-# Materials and methods
+Ultimately the goal of this exercise is to shed light on how people are feeling after the election, how they are expressing what they are feeling in words, where pluralism expresses in the United States electoral mechanisms, and where votes translate most directly to electoral college votes.
+ 
+# Materials and Methods
 
-[~ 200 words]
+## Approach
+Twitter data is available through the use of a Twitter Developer Account, via its Rest API, which can be applied for through the following link. For reproduction's sake, a processed and halfway cleaned version of the data used can be found in the projects repository with a separate csv of data available for each of the lower 48 states, and the District of Columbia.
 
-Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.
+The upfront processing and "halfway" cleaning of the initial data extracted from Twitter will not be included in this analysis for the following reasons: 1) The raw pre processed data contains twitter user information that should    not be publicly shared; 2) Raw pre processed data include several independent variables which are not of concern in this analysis; 3) Raw pre processed data takes up more space than can be uploaded to GitHub.
 
-Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.
+However an example of collection and preparation of the data can be found below for the state of Alabama. Same process repeated for the lower 48 states and the District of Columbia.
 
-Data: The underlying data are publicly accessible via the web and downloaded/accessed within the Rmd script. If you want to use your own data, you must make it available on a website (e.g. Figshare) so that others are able to re-run your code.
+  1. Define twitter election search terms for the state of Alabama.
+  
+      **alkw<-c("alabama,election")**
+    
+  2. Collect a stream of tweets using search terms from Twitter's Rest API for
+  240 seconds in the English language. 
+  
+      **al_e20<-stream_tweets(q=alkw,timeout = 240,lan='en')**
+    
+  3. Turn the tweet stream into a data frame (6883 observations).
+  
+      **al20<-tibble(1:6883,al_e20)**
 
-You can do bullets like this:
+  4. Create data frame that only includes the text from the tweet stream.
+  
+      **txt_al<-tibble(1:6883,exn_al$text)**
+    
+  5. Rename the column names for later ease of use.
+  
+      **names(txt_al)<-c("tweet","text")**
+    
+  6. Save data frame as csv locally.
+  
+      **write_as_csv(txt_al,"txt_al.csv")**
 
-* The first most important thing
-* The second most important thing
-* The third most important thing
+An important point of discussion is the concept of digital location. Often times on social media platforms users do not link their avatars with a specific geographic location. This proves challenging in connecting sentiments to locations. The approach taken in this analysis is to adopt the idea of digital location, which means that the mention of a unique word on a social media platform by a user makes them part of a community of users that are all using the / discussing the same language. Although it is not a perfect connection to location, this analysis assumes that users who mention a states name and the election in the same tweet are part of the digital community of that state with respect to the election. A parallel conceptualization might be to consider sports teams. If someone is a fan of the Buffalo Bills, they needn't be specifically located in Buffalo to be part of the digital community of the Buffalo Bills.
 
-You can do numbers like this:
+Additional information will be collected from several other sources. Ballotopedia will be used to collect information about the election results and the forecasts prior to the election, for both the executive and legislative federal elections, and the electoral college map. A geojson hex map will be used to illustrate and communicate the distinctions in sentiment and political structure across and between the states. This geojson also includes demographic information about each state, which will be used for analysis and can be downloaded here.   
 
-1. The first most important thing
-2. The second most important thing
-3. The third most important thing
-
-See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
-
-## Required Packages
-
+## Packages
 ```{r, message=F, warning=F}
 library(usmap)
 library(tibble)
@@ -62,31 +76,26 @@ library(broom)
 library(rgeos)
 library(mapproj)
 library(viridis)
+library(corrplot)
+library(reshape2)
+library(igraph)
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
 ```
 
+## Data
+All data can be found on GitHub:
+https://github.com/geo511-2020/geo511-2020-project-lazin-buff.git
+
+Ballotopedia Political Information:
+https://ballotpedia.org/Electoral_College
+
+Twitter Developer Application Process:
+https://developer.twitter.com/en/apply-for-access
+
+Hexagram Map:
+https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map#/table
+
 ## Load in Data
-
-Example of collection and preparation of data below (but not part of script) for the state of Alabama. Same process repeated for the lower 48 states and the District of Columbia.
-
-  1. Define twitter election search terms for the state of Alabama.
-    alkw<-c("alabama,election")
-    
-  2. Collect a stream of tweets using search terms from Twitter's Rest API for 240 seconds in the English language
-    al_e20<-stream_tweets(q=alkw,timeout = 240,lan='en')
-    
-  3. Turn the tweet stream into a data frame (6883 observations).
-    al20<-tibble(1:6883,al_e20)
-
-  4. Create new data frame that only includes the text column from the tweet stream.
-    txt_al<-tibble(1:6883,exn_al$text)
-    
-  5. Rename the column names for later ease of use.
-    names(txt_al)<-c("tweet","text")
-    
-  6. Save data frame as csv locally.
-    write_as_csv(txt_al,"txt_al.csv")
-
 Load in data from unpacked zip file.
 ```{r}
 txt_al<-read.csv("txt_al.csv")
@@ -161,8 +170,8 @@ mean_afinn<-function(afinn_state){
 }
 ```
 
-## Remove Stop Words and add AFINN for each state
-I know I can probably do this more efficiently with a for loop. tried several times but couldnt figure it out.
+## Remove Stop Words & add AFINNs
+(Couldn't figure out how to get a for loop running - recommendations wanted)
 ```{r, message=FALSE}
 txt_al[]<-lapply(txt_al,as.character)
 untk_al<-txt_al%>%
@@ -655,7 +664,7 @@ untk_wy$meanVal<-mean_afinn(untk_wy)
 avg_wy<-mean_afinn(untk_wy)
 ```
 
-## Create data frame to be used for maps
+## Merge Datas
 ```{r}
 #Manual afinn sentiment score of each state as a list
 afinn_eachState_list<-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),1)
@@ -693,7 +702,6 @@ us_states_afinn$VOTE_WEIGHT<-round(as.numeric((us_states_afinn$REP_PER_POP/sum_r
 ## Prepare for Hex Grids
 ```{r}
 #HEXGRID TUTORIAL: https://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
-#LOAD IN HEXGRID US: https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map
 spdf<-geojson_read("us_states_hexgrid.geojson",what="sp")
 
 #import hex map data, turn into data frame, and edit names for later ease of use
@@ -720,8 +728,7 @@ my_palette3<-rev(magma(20))
 my_palette4<-magma(8)
 ```
 
-## Making Plots
-
+# Hex Grids
 ```{r}
 hex_ec_forecast<-ggplot() +
   geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=EC_WT))+
@@ -755,39 +762,7 @@ hex_ec_forecast<-ggplot() +
   )
 hex_ec_forecast
 ```
-```{r}
-hex_ec_swingHouse<-ggplot() +
-  geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=TU_alpha))+
-  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
-  theme_void() +
-  scale_fill_manual( 
-    values=my_palette2,
-    name="2020 Executive Forecast", 
-    guide = guide_legend(keyheight = unit(2, units = "mm"), 
-                         keywidth=unit(8, units = "mm"),
-                         label.position = "bottom",
-                         title.position = 'top',
-                         nrow=1))+
-  scale_alpha_identity(
-    name="House Toss Up Races ( Max 4 )",
-    guide = guide_legend(keyheight = unit(2, units = "mm"),
-                         keywidth=unit(8, units = "mm"),
-                         label.position = "bottom",
-                         title.position = 'top',
-                         nrow=1))+
-  coord_quickmap()+
-  ggtitle( "Swing Races Per \nState from 0 to 4" ) +
-  theme(
-    legend.position = c(0.7, 1.0),
-    text = element_text(color = "#22211d"),
-    plot.background = element_rect(fill = "white", color = NA), 
-    panel.background = element_rect(fill = "white", color = NA), 
-    legend.background = element_rect(fill = "white", color = NA),
-    plot.title.position="plot",
-    plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
-  )
-hex_ec_swingHouse
-```
+The Electoral College Forecast map is a preliminary heat map, which displays the forecast of electoral college in colors and the % share of the total electoral college votes by opacity / alpha. Based off of this initial map we can see that there are roughly six states that have occupy a sizeable share of the electoral college votes (CA,TX,FL,NY,PA,IL); 21 states in total were forecasted to support the Republican candidate, 16 for the Democrat candidate, 12 that were swing or ambiguous. We can also see that the more Electoral College point rich states, skewed Democrat in pundit forecasting.
 
 ```{r}
 hex_ec_voteWeight<-ggplot() +
@@ -821,7 +796,7 @@ hex_ec_voteWeight<-ggplot() +
   )
 hex_ec_voteWeight
 ```
-
+The Electoral College and Popular Relationship map illustrates where individual votes cast have the strongest exchange for Electoral College points. The Electoral College distribution of points is nuanced, however fundamentally a fixed number of points must be divided between all states (and District of Columbia). Most of the Electoral College points are allocated based off of the number of congressional districts, which are designated based off of population, however all states are also given two points basally. This minimum points of the Electoral College subtly gives a better "exchange rate to sparsely populated rural states like Wyoming, the Dakotas, and Vermont. This map also shows how the election played out.
 
 ```{r}
 spdf_fort_L48$ECbin<-cut(spdf_fort_L48$EC_VOTES,
@@ -853,7 +828,7 @@ hex_ec_concentration<-ggplot() +
   )
 hex_ec_concentration
 ```
-
+This is yet another visualization of the Electoral College, which divides the lower 48 states into the saturation of their electoral college points. Here we can more clearly see the distribution of points and also the few states that hold the majority of the electoral college votes.
 ```{r}
 hex_afinn<-ggplot() +
   geom_polygon(data = spdf_fort_L48, aes(fill=as.factor(AFINN), x = long, y = lat, group = group))+
@@ -879,8 +854,15 @@ hex_afinn<-ggplot() +
   )
 hex_afinn
 ```
+The Twitter Sentiment uses the same hex map structure, but shows something much more illustrative to the reception of the election results. The sentiments were initially derived from a random sampling of tweets about each state and the election, for example a random sample was collected for Pennsylvania, by filtering only tweets that included both "election" and "Pennsylvania" for the query. Once each of the states' samples were collected the text of each tweet was extracted and separated into its unique words. Commonly occurring structural words like "it","and",and "the", as well as the search terms themselves and the candidates names were removed from the list of words. Once that was done the remaining words were joined with an afinn sentiment word list, which assigned values from -5 to +5 to each individual word, and indicated the extremity in positivity and negativity of each word. Finally an average of these afinn values was calculated for each state and then mapped to the hex map.
 
-## Wordclouds
+The most notable initial finding is that the vast majority of tweets around the digital space of states are negative in tone according to the afinn sentiment assignments, with the only exception being the state of Georgia, which was heading toward a run-off election when the data was collected. On the other side of the spectrum Minnesota and West Virginia were quite extremely negative in sentiment. Its difficult to say exactly why these sentiments have manifested as they have however here are a few unexplored explanations for a few states. West Virginia is the most pro Donald Trump, republican candidate, among all states and so hiw defeat in the national election may have been evocative of negative emotions. Georgia voted for a democrat for the first time since 1996, had a historic high level of black voter participation, and was heading toward a run-off election when the data was collected, perhaps the sentiment on twitter reflected a level of surprise and excitement and the outcome of and participation in the election. Missouri (MO) also had an unexpected positive sentiment compared to many of its neighboring states, possible explanations may be linked back to the ongoing Black Lives Matter movement which started in the suburbs of St Louis, or because of many congressional seat changes. Finally Minnesota also seems to have a particularly negative sentiment in its tweets. The movement to defund the police began in Minneapolis may have influence on how users have perceived the election results.
+
+# Wordclouds
+
+The proceeding word cloud analyses sit on top of word frequency counts for each indicated twitter location election stream search. Rather than using the original afinn classification, the word clouds join the unique words with a more simple bing classification list, which in principle does the same thing as afinn, but merely classifies words as either "negative" or "positive". Positive words are indicated by a dark green coloration, and negative by red coloration. The size of the font of each of the words indicates the frequency (larger word ~ more frequently used). At the center of each word cloud the most commonly used words can be found and the frequencies decrease as the words radiate out from the center. This color scheme is a visual way to understand what is being said in the digital community.
+
+## Swing States
 ```{r,message=FALSE}
 #WORD CLOUDS https://towardsdatascience.com/create-a-word-cloud-with-r-bde3e7422e8a
 swing_wfqc<-rbind(untk_pa,untk_ga,untk_az,untk_fl,untk_ia,untk_mi,untk_mn,untk_nm,untk_nv,untk_tx,untk_wi)%>%
@@ -888,6 +870,8 @@ swing_wfqc<-rbind(untk_pa,untk_ga,untk_az,untk_fl,untk_ia,untk_mi,untk_mn,untk_n
 bing_swing<-swing_wfqc%>%
   inner_join(bing)
 bing_swing$color<-ifelse(bing_swing$sentiment %in% "negative","red","darkgreen")
+
+head(bing_swing)
 
 cloud_swing<-wordcloud(word=bing_swing$word,freq=bing_swing$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_swing$color)
 ```
@@ -899,8 +883,9 @@ pa_wfqc<-untk_pa%>%
 bing_pa<-pa_wfqc%>%
   inner_join(bing)
 bing_pa$color<-ifelse(bing_pa$sentiment %in% "negative","red","darkgreen")
-```
-```{r}
+
+head(bing_pa)
+
 cloud_pa<-wordcloud(word=bing_pa$word,freq=bing_pa$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_pa$color)
 ```
 
@@ -911,6 +896,8 @@ mn_wfqc<-untk_mn%>%
 bing_mn<-mn_wfqc%>%
   inner_join(bing)
 bing_mn$color<-ifelse(bing_mn$sentiment %in% "negative","red","darkgreen")
+
+head(bing_mn)
 
 cloud_mn<-wordcloud(word=bing_mn$word,freq=bing_mn$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_mn$color)
 ```
@@ -923,6 +910,8 @@ bing_wv<-wv_wfqc%>%
   inner_join(bing)
 bing_wv$color<-ifelse(bing_wv$sentiment %in% "negative","red","darkgreen")
 
+head(bing_wv)
+
 cloud_wv<-wordcloud(word=bing_wv$word,freq=bing_wv$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_wv$color)
 ```
 
@@ -934,19 +923,54 @@ bing_ga<-ga_wfqc%>%
   inner_join(bing)
 bing_ga$color<-ifelse(bing_ga$sentiment %in% "negative","red","darkgreen")
 
+head(bing_ga)
+
 cloud_ga<-wordcloud(word=bing_ga$word,freq=bing_ga$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_ga$color)
 ```
-Add any additional processing steps here.
 
-# Results
+# Conclusion
 
 [~200 words]
 
-Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.
+still have to fill this in..
+.. also open to any aditional analyses that people might be interested in seeing..
 
-Show tables, plots, etc. and describe them.
+# Thoughts / Ideas Additional Analysis
+```{r}
+#strip_pa<-subset(untk_pa,select=c(tweet,word))
+
+#untk_bg_pa<-txt_pa%>%
+#  unnest_tokens(bigram,text,token="ngrams",n=2)
+#untk_split_pa<-untk_bg_pa%>%
+#  separate(bigram,c("word1","word2"),sep=" ")
+#untk_split_sw_pa<-untk_split_pa%>%
+#  anti_join(stop_words,by=c("word1"="word"))%>%
+#  anti_join(stop_words,by=c("word2"="word"))%>%
+#  anti_join(stop_twitter,by=c("word1"="word"))%>%
+#  anti_join(stop_twitter,by=c("word2"="word"))%>%
+#  anti_join(stop_candidate,by=c("word1"="word"))%>%
+#  anti_join(stop_candidate,by=c("word2"="word"))
+#untk_split_sw_pa<-subset(untk_split_sw_pa,select=-location)
+#bip_pa<-graph.data.frame(untk_split_sw_pa)
+#V(bip_pa)$type<-V(bip_pa)$name %in% bip_pa[,1]
+#v<-get.adjacency(bipartite.projection(bip_pa)[[2]],attr="weight",sparse=FALSE)
+
+#test_pa<-crossprod(table(untk_split_sw_pa[2:3]))
+```
+
 
 ```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
+afinn_states<-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),2)
+states_afinn_new<-tibble(afinn_states,state_names)
+names(states_afinn_new)<-c("AFINN_2","NAME")
+spdf_fort_tprep<-merge(spdf_fort_L48,states_afinn_new,by="NAME")
+
+spdf_fort_tprep<-subset(spdf_fort_tprep,select=-c(NAME,long,lat,order,hole,piece,group,GEOID,REGION,AREA,TU_alpha,AFINN,geometry,ECbin,RESULT,SWING_FORECAST))
+states_table<-distinct(spdf_fort_tprep)
+
+m<-as.matrix(states_table)
+data_corr<-corrplot(cor(m),method="color")
+
 #m <- leaflet(data) %>% 
 #  addTiles() %>% 
 #  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
@@ -960,12 +984,6 @@ Show tables, plots, etc. and describe them.
 #  ggplot(aes(x=x,y=y,col=category))+
 #  geom_point()
 ```
-
-# Conclusions
-
-[~200 words]
-
-Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.
 
 # References
 

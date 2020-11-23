@@ -373,30 +373,36 @@ div.tocify {
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>The United States Federal Election of 2020 has come and gone. This moment in United States history is being described by many contemporaries as rife with division and factionalism, with ideological perspectives assuming adversarial stances against other perspectives. This framing of the present is simultaneously visceral and opaque, both concerning and yet difficult to contextualize.</p>
-<p>In the days and weeks following the November 4th, 2020 date emotional on-lookers and participants have taken to social media platforms to voice their perspectives. This deluge of sentiment is rife with information that may help to contextualize how political election information is being received across the United States. The remainder of this research is tasked at unpacking the voices of twitter users on the 13th and 14th of November following the election.</p>
+<p>The United States Federal Election of 2020 has come and gone. This moment in United States history is being described by many contemporaries as rife with division and factionalism, with ideological perspectives assuming adversarial stances against one another. This framing of the present is simultaneously visceral and opaque, both concerning and difficult to contextualize / quantify. Describing this moment has traditionally been done with words, and in modern times has become decentralized with the advent and propagation of social media platforms.</p>
+<p>In the days and weeks following the November 4th, emotional on-lookers and participants have taken to social media platforms to voice their perspectives. This deluge of sentiment is abundant with information that may help to make sense of how political election information is being received across the United States. The remainder of this research is tasked at unpacking the voices of twitter users on the 13th and 14th of November following the election. Specifically this analysis will do two general things: set a backdrop, in numbers, of the electoral college mechanism; and dissect the words being used when discussing politics in the United States during this time period.</p>
+<p>Ultimately the goal of this exercise is to shed light on how people are feeling after the election, how they are expressing what they are feeling in words, where pluralism expresses in the United States electoral mechanisms, and where votes translate most directly to electoral college votes.</p>
 </div>
 <div id="materials-and-methods" class="section level1">
-<h1>Materials and methods</h1>
-<p>[~ 200 words]</p>
-<p>Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.</p>
-<p>Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.</p>
-<p>Data: The underlying data are publicly accessible via the web and downloaded/accessed within the Rmd script. If you want to use your own data, you must make it available on a website (e.g. Figshare) so that others are able to re-run your code.</p>
-<p>You can do bullets like this:</p>
-<ul>
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
-</ul>
-<p>You can do numbers like this:</p>
+<h1>Materials and Methods</h1>
+<div id="approach" class="section level2">
+<h2>Approach</h2>
+<p>Twitter data is available through the use of a Twitter Developer Account, via its Rest API, which can be applied for through the following link. For reproduction’s sake, a processed and halfway cleaned version of the data used can be found in the projects repository with a separate csv of data available for each of the lower 48 states, and the District of Columbia.</p>
+<p>The upfront processing and “halfway” cleaning of the initial data extracted from Twitter will not be included in this analysis for the following reasons: 1) The raw pre processed data contains twitter user information that should not be publicly shared; 2) Raw pre processed data include several independent variables which are not of concern in this analysis; 3) Raw pre processed data takes up more space than can be uploaded to GitHub.</p>
+<p>However an example of collection and preparation of the data can be found below for the state of Alabama. Same process repeated for the lower 48 states and the District of Columbia.</p>
 <ol style="list-style-type: decimal">
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
+<li><p>Define twitter election search terms for the state of Alabama.</p>
+<p><strong>alkw&lt;-c(“alabama,election”)</strong></p></li>
+<li><p>Collect a stream of tweets using search terms from Twitter’s Rest API for 240 seconds in the English language.</p>
+<p><strong>al_e20&lt;-stream_tweets(q=alkw,timeout = 240,lan=‘en’)</strong></p></li>
+<li><p>Turn the tweet stream into a data frame (6883 observations).</p>
+<p><strong>al20&lt;-tibble(1:6883,al_e20)</strong></p></li>
+<li><p>Create data frame that only includes the text from the tweet stream.</p>
+<p><strong>txt_al&lt;-tibble(1:6883,exn_al$text)</strong></p></li>
+<li><p>Rename the column names for later ease of use.</p>
+<p><strong>names(txt_al)&lt;-c(“tweet”,“text”)</strong></p></li>
+<li><p>Save data frame as csv locally.</p>
+<p><strong>write_as_csv(txt_al,“txt_al.csv”)</strong></p></li>
 </ol>
-<p>See <a href="http://rmarkdown.rstudio.com/">http://rmarkdown.rstudio.com/</a> for all the amazing things you can do.</p>
-<div id="required-packages" class="section level2">
-<h2>Required Packages</h2>
+<p>An important point of discussion is the concept of digital location. Often times on social media platforms users do not link their avatars with a specific geographic location. This proves challenging in connecting sentiments to locations. The approach taken in this analysis is to adopt the idea of digital location, which means that the mention of a unique word on a social media platform by a user makes them part of a community of users that are all using the / discussing the same language. Although it is not a perfect connection to location, this analysis assumes that users who mention a states name and the election in the same tweet are part of the digital community of that state with respect to the election. A parallel conceptualization might be to consider sports teams. If someone is a fan of the Buffalo Bills, they needn’t be specifically located in Buffalo to be part of the digital community of the Buffalo Bills.</p>
+<p>Additional information will be collected from several other sources. Ballotopedia will be used to collect information about the election results and the forecasts prior to the election, for both the executive and legislative federal elections, and the electoral college map. A geojson hex map will be used to illustrate and communicate the distinctions in sentiment and political structure across and between the states. This geojson also includes demographic information about each state, which will be used for analysis and can be downloaded here.</p>
+</div>
+<div id="packages" class="section level2">
+<h2>Packages</h2>
 <pre class="r"><code>library(usmap)
 library(tibble)
 library(tidytext)
@@ -423,17 +429,15 @@ library(mapproj)
 library(viridis)
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code></pre>
 </div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>All data can be found on GitHub: <a href="https://github.com/geo511-2020/geo511-2020-project-lazin-buff.git" class="uri">https://github.com/geo511-2020/geo511-2020-project-lazin-buff.git</a></p>
+<p>Ballotopedia Political Information: <a href="https://ballotpedia.org/Electoral_College" class="uri">https://ballotpedia.org/Electoral_College</a></p>
+<p>Twitter Developer Application Process: <a href="https://developer.twitter.com/en/apply-for-access" class="uri">https://developer.twitter.com/en/apply-for-access</a></p>
+<p>Hexagram Map: <a href="https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map#/table" class="uri">https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map#/table</a></p>
+</div>
 <div id="load-in-data" class="section level2">
 <h2>Load in Data</h2>
-<p>Example of collection and preparation of data below (but not part of script) for the state of Alabama. Same process repeated for the lower 48 states and the District of Columbia.</p>
-<ol style="list-style-type: decimal">
-<li><p>Define twitter election search terms for the state of Alabama. alkw&lt;-c(“alabama,election”)</p></li>
-<li><p>Collect a stream of tweets using search terms from Twitter’s Rest API for 240 seconds in the English language al_e20&lt;-stream_tweets(q=alkw,timeout = 240,lan=‘en’)</p></li>
-<li><p>Turn the tweet stream into a data frame (6883 observations). al20&lt;-tibble(1:6883,al_e20)</p></li>
-<li><p>Create new data frame that only includes the text column from the tweet stream. txt_al&lt;-tibble(1:6883,exn_al$text)</p></li>
-<li><p>Rename the column names for later ease of use. names(txt_al)&lt;-c(“tweet”,“text”)</p></li>
-<li><p>Save data frame as csv locally. write_as_csv(txt_al,“txt_al.csv”)</p></li>
-</ol>
 <p>Load in data from unpacked zip file.</p>
 <pre class="r"><code>txt_al&lt;-read.csv(&quot;txt_al.csv&quot;)
 txt_ar&lt;-read.csv(&quot;txt_ar.csv&quot;)
@@ -505,9 +509,9 @@ mean_afinn&lt;-function(afinn_state){
   return(avg_state)
 }</code></pre>
 </div>
-<div id="remove-stop-words-and-add-afinn-for-each-state" class="section level2">
-<h2>Remove Stop Words and add AFINN for each state</h2>
-<p>I know I can probably do this more efficiently with a for loop. tried several times but couldnt figure it out.</p>
+<div id="remove-stop-words-add-afinns" class="section level2">
+<h2>Remove Stop Words &amp; add AFINNs</h2>
+<p>(Couldn’t figure out how to get a for loop running - recommendations wanted)</p>
 <pre class="r"><code>txt_al[]&lt;-lapply(txt_al,as.character)
 untk_al&lt;-txt_al%&gt;%
     unnest_tokens(word,text)%&gt;%
@@ -998,8 +1002,8 @@ untk_wy&lt;-txt_wy%&gt;%
 untk_wy$meanVal&lt;-mean_afinn(untk_wy)
 avg_wy&lt;-mean_afinn(untk_wy)</code></pre>
 </div>
-<div id="create-data-frame-to-be-used-for-maps" class="section level2">
-<h2>Create data frame to be used for maps</h2>
+<div id="merge-datas" class="section level2">
+<h2>Merge Datas</h2>
 <pre class="r"><code>#Manual afinn sentiment score of each state as a list
 afinn_eachState_list&lt;-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),1)
 
@@ -1035,7 +1039,6 @@ us_states_afinn$VOTE_WEIGHT&lt;-round(as.numeric((us_states_afinn$REP_PER_POP/su
 <div id="prepare-for-hex-grids" class="section level2">
 <h2>Prepare for Hex Grids</h2>
 <pre class="r"><code>#HEXGRID TUTORIAL: https://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
-#LOAD IN HEXGRID US: https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map
 spdf&lt;-geojson_read(&quot;us_states_hexgrid.geojson&quot;,what=&quot;sp&quot;)
 
 #import hex map data, turn into data frame, and edit names for later ease of use
@@ -1061,8 +1064,9 @@ my_palette2 &lt;- c(&quot;turquoise&quot;,&quot;salmon&quot;,&quot;violet&quot;)
 my_palette3&lt;-rev(magma(20))
 my_palette4&lt;-magma(8)</code></pre>
 </div>
-<div id="making-plots" class="section level2">
-<h2>Making Plots</h2>
+</div>
+<div id="hex-grids" class="section level1">
+<h1>Hex Grids</h1>
 <pre class="r"><code>hex_ec_forecast&lt;-ggplot() +
   geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=EC_WT))+
   geom_text(data=cntr, aes(x=x, y=y, label=id)) +
@@ -1212,8 +1216,8 @@ hex_ec_concentration</code></pre>
 hex_afinn</code></pre>
 <p><img src="LazinFinal_GEO511_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
-<div id="wordclouds" class="section level2">
-<h2>Wordclouds</h2>
+<div id="wordclouds" class="section level1">
+<h1>Wordclouds</h1>
 <pre class="r"><code>#WORD CLOUDS https://towardsdatascience.com/create-a-word-cloud-with-r-bde3e7422e8a
 swing_wfqc&lt;-rbind(untk_pa,untk_ga,untk_az,untk_fl,untk_ia,untk_mi,untk_mn,untk_nm,untk_nv,untk_tx,untk_wi)%&gt;%
   count(word,sort=TRUE)
@@ -1223,7 +1227,6 @@ bing_swing$color&lt;-ifelse(bing_swing$sentiment %in% &quot;negative&quot;,&quot
 
 cloud_swing&lt;-wordcloud(word=bing_swing$word,freq=bing_swing$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_swing$color)</code></pre>
 <p><img src="LazinFinal_GEO511_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-</div>
 <div id="pennsylvania" class="section level2">
 <h2>Pennsylvania</h2>
 <pre class="r"><code>cloud_pa&lt;-wordcloud(word=bing_pa$word,freq=bing_pa$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_pa$color)</code></pre>
@@ -1260,7 +1263,7 @@ bing_ga&lt;-ga_wfqc%&gt;%
 bing_ga$color&lt;-ifelse(bing_ga$sentiment %in% &quot;negative&quot;,&quot;red&quot;,&quot;darkgreen&quot;)
 
 cloud_ga&lt;-wordcloud(word=bing_ga$word,freq=bing_ga$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_ga$color)</code></pre>
-<p><img src="LazinFinal_GEO511_files/figure-html/unnamed-chunk-17-1.png" width="672" /> Add any additional processing steps here.</p>
+<p><img src="LazinFinal_GEO511_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 </div>
 </div>
 <div id="results" class="section level1">
