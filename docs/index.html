@@ -9,12 +9,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Your name here" />
+<meta name="author" content="Marko Lazin" />
 
 
-<title>My Final Project Template</title>
+<title>US Federal Election 2020</title>
 
-<script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -26,16 +26,6 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
-<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
-<script src="site_libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
-<link href="site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
-<script src="site_libs/leaflet-1.3.1/leaflet.js"></script>
-<link href="site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
-<script src="site_libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
-<script src="site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
-<link href="site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
-<script src="site_libs/leaflet-binding-2.0.3/leaflet.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -374,282 +364,1012 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">My Final Project Template</h1>
-<h3 class="subtitle">Subtitle here if desired</h3>
-<h4 class="author">Your name here</h4>
+<h1 class="title toc-ignore">US Federal Election 2020</h1>
+<h3 class="subtitle">Twitter Sentiments and the Electoral College</h3>
+<h4 class="author">Marko Lazin</h4>
 
 </div>
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>[~ 200 words]</p>
-<p>Clearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way.</p>
+<p>The United States Federal Election of 2020 has come and gone. This moment in United States history is being described by many contemporaries as rife with division and factionalism, with ideological perspectives assuming adversarial stances against one another. This framing of the present is simultaneously visceral and opaque, both concerning and difficult to contextualize / quantify. Describing this moment has traditionally been done with words, and in modern times has become decentralized with the advent and propagation of social media platforms.</p>
+<p>In the days and weeks following the November 4th, emotional on-lookers and participants have taken to social media platforms to voice their perspectives. This deluge of sentiment is abundant with information that may help to make sense of how political election information is being received across the United States. The remainder of this research is tasked at unpacking the voices of twitter users on the 13th and 14th of November following the election. Specifically this analysis will do two general things: set a backdrop, in numbers, of the electoral college mechanism; and dissect the words being used when discussing politics in the United States during this time period.</p>
+<p>Ultimately the goal of this exercise is to shed light on how people are feeling after the election, how they are expressing what they are feeling in words, where pluralism expresses in the United States electoral mechanisms, and where votes translate most directly to electoral college votes.</p>
 </div>
 <div id="materials-and-methods" class="section level1">
-<h1>Materials and methods</h1>
-<p>[~ 200 words]</p>
-<p>Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.</p>
-<p>Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.</p>
-<p>Data: The underlying data are publicly accessible via the web and downloaded/accessed within the Rmd script. If you want to use your own data, you must make it available on a website (e.g. Figshare) so that others are able to re-run your code.</p>
-<p>You can do bullets like this:</p>
-<ul>
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
-</ul>
-<p>You can do numbers like this:</p>
+<h1>Materials and Methods</h1>
+<div id="approach" class="section level2">
+<h2>Approach</h2>
+<p>Twitter data is available through the use of a Twitter Developer Account, via its Rest API, which can be applied for through the following link. For reproduction’s sake, a processed and halfway cleaned version of the data used can be found in the projects repository with a separate csv of data available for each of the lower 48 states, and the District of Columbia.</p>
+<p>The upfront processing and “halfway” cleaning of the initial data extracted from Twitter will not be included in this analysis for the following reasons: 1) The raw pre processed data contains twitter user information that should not be publicly shared; 2) Raw pre processed data include several independent variables which are not of concern in this analysis; 3) Raw pre processed data takes up more space than can be uploaded to GitHub.</p>
+<p>However an example of collection and preparation of the data can be found below for the state of Alabama. Same process repeated for the lower 48 states and the District of Columbia.</p>
 <ol style="list-style-type: decimal">
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
+<li><p>Define twitter election search terms for the state of Alabama.</p>
+<p><strong>alkw&lt;-c(“alabama,election”)</strong></p></li>
+<li><p>Collect a stream of tweets using search terms from Twitter’s Rest API for 240 seconds in the English language.</p>
+<p><strong>al_e20&lt;-stream_tweets(q=alkw,timeout = 240,lan=‘en’)</strong></p></li>
+<li><p>Turn the tweet stream into a data frame (6883 observations).</p>
+<p><strong>al20&lt;-tibble(1:6883,al_e20)</strong></p></li>
+<li><p>Create data frame that only includes the text from the tweet stream.</p>
+<p><strong>txt_al&lt;-tibble(1:6883,exn_al$text)</strong></p></li>
+<li><p>Rename the column names for later ease of use.</p>
+<p><strong>names(txt_al)&lt;-c(“tweet”,“text”)</strong></p></li>
+<li><p>Save data frame as csv locally.</p>
+<p><strong>write_as_csv(txt_al,“txt_al.csv”)</strong></p></li>
 </ol>
-<p>See <a href="http://rmarkdown.rstudio.com/">http://rmarkdown.rstudio.com/</a> for all the amazing things you can do.</p>
-<p>Here’s my first code chunk.</p>
-<pre class="r"><code>1+2</code></pre>
-<pre><code>## [1] 3</code></pre>
-<p>Load any required packages in a code chunk (you may need to install some packages):</p>
-<pre class="r"><code>library(tidyverse)
-library(leaflet)
-library(kableExtra)
+<p>An important point of discussion is the concept of digital location. Often times on social media platforms users do not link their avatars with a specific geographic location. This proves challenging in connecting sentiments to locations. The approach taken in this analysis is to adopt the idea of digital location, which means that the mention of a unique word on a social media platform by a user makes them part of a community of users that are all using the / discussing the same language. Although it is not a perfect connection to location, this analysis assumes that users who mention a states name and the election in the same tweet are part of the digital community of that state with respect to the election. A parallel conceptualization might be to consider sports teams. If someone is a fan of the Buffalo Bills, they needn’t be specifically located in Buffalo to be part of the digital community of the Buffalo Bills.</p>
+<p>Additional information will be collected from several other sources. Ballotopedia will be used to collect information about the election results and the forecasts prior to the election, for both the executive and legislative federal elections, and the electoral college map. A geojson hex map will be used to illustrate and communicate the distinctions in sentiment and political structure across and between the states. This geojson also includes demographic information about each state, which will be used for analysis and can be downloaded here.</p>
+</div>
+<div id="packages" class="section level2">
+<h2>Packages</h2>
+<pre class="r"><code>library(usmap)
+library(tibble)
+library(tidytext)
+library(dplyr)
+library(tm)
+library(rtweet)
+library(ggplot2)
+library(e1071)
+library(RColorBrewer)
+library(wordcloud)
+library(wordcloud2)
+library(tmap)
+library(spData)
+library(sf)
+library(Cairo)
+library(ggwordcloud)
+library(pacman)
+library(tidyverse)
+library(geojsonio)
+library(rgdal)
+library(broom)
+library(rgeos)
+library(mapproj)
+library(viridis)
+library(corrplot)
+library(reshape2)
+library(igraph)
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code></pre>
-<div id="download-and-clean-all-required-data" class="section level2">
-<h2>Download and clean all required data</h2>
-<pre class="r"><code>n=20
-data=data.frame(x=runif(n,-180,180),
-                y=runif(n,-60,60),
-                size = runif(n, 5, 20),
-                category = factor(
-                  sample(letters[1:5], n, replace = TRUE)
-                  ),
-                value = rnorm(n))</code></pre>
-<pre class="r"><code>data %&gt;% 
-  slice(1:10) %&gt;% #show only 1:n rows
-  kable(digits=2,align=&quot;c&quot;)%&gt;% #make table and round to two digits
-  kable_styling(bootstrap_options = 
-                  c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;)) #apply other formatting</code></pre>
-<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:center;">
-x
-</th>
-<th style="text-align:center;">
-y
-</th>
-<th style="text-align:center;">
-size
-</th>
-<th style="text-align:center;">
-category
-</th>
-<th style="text-align:center;">
-value
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center;">
-5.19
-</td>
-<td style="text-align:center;">
-29.47
-</td>
-<td style="text-align:center;">
-15.00
-</td>
-<td style="text-align:center;">
-d
-</td>
-<td style="text-align:center;">
-0.55
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
--5.21
-</td>
-<td style="text-align:center;">
--27.27
-</td>
-<td style="text-align:center;">
-10.43
-</td>
-<td style="text-align:center;">
-e
-</td>
-<td style="text-align:center;">
-1.70
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-87.88
-</td>
-<td style="text-align:center;">
--17.05
-</td>
-<td style="text-align:center;">
-16.12
-</td>
-<td style="text-align:center;">
-d
-</td>
-<td style="text-align:center;">
--0.64
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-133.03
-</td>
-<td style="text-align:center;">
-15.38
-</td>
-<td style="text-align:center;">
-17.74
-</td>
-<td style="text-align:center;">
-b
-</td>
-<td style="text-align:center;">
-0.47
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
--47.72
-</td>
-<td style="text-align:center;">
--7.84
-</td>
-<td style="text-align:center;">
-11.36
-</td>
-<td style="text-align:center;">
-d
-</td>
-<td style="text-align:center;">
--0.20
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-30.31
-</td>
-<td style="text-align:center;">
-11.73
-</td>
-<td style="text-align:center;">
-11.87
-</td>
-<td style="text-align:center;">
-b
-</td>
-<td style="text-align:center;">
-0.60
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
--155.95
-</td>
-<td style="text-align:center;">
--24.88
-</td>
-<td style="text-align:center;">
-13.73
-</td>
-<td style="text-align:center;">
-b
-</td>
-<td style="text-align:center;">
-0.45
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-29.93
-</td>
-<td style="text-align:center;">
-23.77
-</td>
-<td style="text-align:center;">
-9.62
-</td>
-<td style="text-align:center;">
-b
-</td>
-<td style="text-align:center;">
--0.65
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-59.50
-</td>
-<td style="text-align:center;">
--42.96
-</td>
-<td style="text-align:center;">
-13.03
-</td>
-<td style="text-align:center;">
-a
-</td>
-<td style="text-align:center;">
--1.38
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-104.49
-</td>
-<td style="text-align:center;">
-50.10
-</td>
-<td style="text-align:center;">
-6.11
-</td>
-<td style="text-align:center;">
-b
-</td>
-<td style="text-align:center;">
--0.89
-</td>
-</tr>
-</tbody>
-</table>
-<p>Add any additional processing steps here.</p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>All data can be found on GitHub: <a href="https://github.com/geo511-2020/geo511-2020-project-lazin-buff.git" class="uri">https://github.com/geo511-2020/geo511-2020-project-lazin-buff.git</a></p>
+<p>Ballotopedia Political Information: <a href="https://ballotpedia.org/Electoral_College" class="uri">https://ballotpedia.org/Electoral_College</a></p>
+<p>Twitter Developer Application Process: <a href="https://developer.twitter.com/en/apply-for-access" class="uri">https://developer.twitter.com/en/apply-for-access</a></p>
+<p>Hexagram Map: <a href="https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map#/table" class="uri">https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map#/table</a></p>
+</div>
+<div id="load-in-data" class="section level2">
+<h2>Load in Data</h2>
+<p>Load in data from unpacked zip file.</p>
+<pre class="r"><code>txt_al&lt;-read.csv(&quot;txt_al.csv&quot;)
+txt_ar&lt;-read.csv(&quot;txt_ar.csv&quot;)
+txt_az&lt;-read.csv(&quot;txt_az.csv&quot;)
+txt_ca&lt;-read.csv(&quot;txt_ca.csv&quot;)
+txt_cn&lt;-read.csv(&quot;txt_cn.csv&quot;)
+txt_co&lt;-read.csv(&quot;txt_co.csv&quot;)
+txt_dc&lt;-read.csv(&quot;txt_dc.csv&quot;)
+txt_de&lt;-read.csv(&quot;txt_de.csv&quot;)
+txt_fl&lt;-read.csv(&quot;txt_fl.csv&quot;)
+txt_ga&lt;-read.csv(&quot;txt_ga.csv&quot;)
+txt_ia&lt;-read.csv(&quot;txt_ia.csv&quot;)
+txt_id&lt;-read.csv(&quot;txt_id.csv&quot;)
+txt_il&lt;-read.csv(&quot;txt_il.csv&quot;)
+txt_in&lt;-read.csv(&quot;txt_in.csv&quot;)
+txt_ks&lt;-read.csv(&quot;txt_ks.csv&quot;)
+txt_ky&lt;-read.csv(&quot;txt_ky.csv&quot;)
+txt_la&lt;-read.csv(&quot;txt_la.csv&quot;)
+txt_ma&lt;-read.csv(&quot;txt_ma.csv&quot;)
+txt_md&lt;-read.csv(&quot;txt_md.csv&quot;)
+txt_me&lt;-read.csv(&quot;txt_me.csv&quot;)
+txt_mi&lt;-read.csv(&quot;txt_mi.csv&quot;)
+txt_mn&lt;-read.csv(&quot;txt_mn.csv&quot;)
+txt_mo&lt;-read.csv(&quot;txt_mo.csv&quot;)
+txt_ms&lt;-read.csv(&quot;txt_ms.csv&quot;)
+txt_mt&lt;-read.csv(&quot;txt_mt.csv&quot;)
+txt_nc&lt;-read.csv(&quot;txt_nc.csv&quot;)
+txt_nd&lt;-read.csv(&quot;txt_nd.csv&quot;)
+txt_ne&lt;-read.csv(&quot;txt_ne.csv&quot;)
+txt_nh&lt;-read.csv(&quot;txt_nh.csv&quot;)
+txt_nj&lt;-read.csv(&quot;txt_nj.csv&quot;)
+txt_nm&lt;-read.csv(&quot;txt_nm.csv&quot;)
+txt_nv&lt;-read.csv(&quot;txt_nv.csv&quot;)
+txt_ny&lt;-read.csv(&quot;txt_ny.csv&quot;)
+txt_oh&lt;-read.csv(&quot;txt_oh.csv&quot;)
+txt_ok&lt;-read.csv(&quot;txt_ok.csv&quot;)
+txt_or&lt;-read.csv(&quot;txt_or.csv&quot;)
+txt_pa&lt;-read.csv(&quot;txt_pa.csv&quot;)
+txt_ri&lt;-read.csv(&quot;txt_ri.csv&quot;)
+txt_sc&lt;-read.csv(&quot;txt_sc.csv&quot;)
+txt_sd&lt;-read.csv(&quot;txt_sd.csv&quot;)
+txt_tn&lt;-read.csv(&quot;txt_tn.csv&quot;)
+txt_tx&lt;-read.csv(&quot;txt_tx.csv&quot;)
+txt_ut&lt;-read.csv(&quot;txt_ut.csv&quot;)
+txt_va&lt;-read.csv(&quot;txt_va.csv&quot;)
+txt_vt&lt;-read.csv(&quot;txt_vt.csv&quot;)
+txt_wa&lt;-read.csv(&quot;txt_wa.csv&quot;)
+txt_wi&lt;-read.csv(&quot;txt_wi.csv&quot;)
+txt_wv&lt;-read.csv(&quot;txt_wv.csv&quot;)
+txt_wy&lt;-read.csv(&quot;txt_wy.csv&quot;)</code></pre>
+</div>
+<div id="nlp-setup" class="section level2">
+<h2>NLP Setup</h2>
+<pre class="r"><code>stop_twitter&lt;-as.data.frame(c(&quot;https&quot;,&quot;t.co&quot;,&quot;rt&quot;,&quot;amp&quot;))
+stop_candidate&lt;-as.data.frame(c(&quot;trump&quot;,&quot;biden&quot;,&quot;election&quot;))
+names(stop_twitter)&lt;-&quot;word&quot;
+names(stop_candidate)&lt;-&quot;word&quot;
+
+data(&quot;us_states&quot;)
+states_us&lt;-us_states
+albers=&quot;+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs&quot;
+
+nrc&lt;-get_sentiments(&quot;nrc&quot;)
+bing&lt;-get_sentiments(&quot;bing&quot;)
+afinn&lt;-get_sentiments(&quot;afinn&quot;)
+
+mean_afinn&lt;-function(afinn_state){
+  avg_state&lt;-mean(afinn_state$value)
+  return(avg_state)
+}</code></pre>
+</div>
+<div id="remove-stop-words-add-afinns" class="section level2">
+<h2>Remove Stop Words &amp; add AFINNs</h2>
+<p>(Couldn’t figure out how to get a for loop running - recommendations wanted)</p>
+<pre class="r"><code>txt_al[]&lt;-lapply(txt_al,as.character)
+untk_al&lt;-txt_al%&gt;%
+    unnest_tokens(word,text)%&gt;%
+    anti_join(stop_words)%&gt;%
+    anti_join(stop_twitter)%&gt;%
+    anti_join(stop_candidate)%&gt;%
+    inner_join(afinn)
+untk_al$meanVal&lt;-mean_afinn(untk_al)
+avg_al&lt;-mean_afinn(untk_al)
+
+txt_ar[]&lt;-lapply(txt_ar,as.character)
+untk_ar&lt;-txt_ar%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ar$meanVal&lt;-mean_afinn(untk_ar)
+avg_ar&lt;-mean_afinn(untk_ar)
+
+txt_az[]&lt;-lapply(txt_az,as.character)
+untk_az&lt;-txt_az%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_az$meanVal&lt;-mean_afinn(untk_az)
+avg_az&lt;-mean_afinn(untk_az)
+
+txt_ca[]&lt;-lapply(txt_ca,as.character)
+untk_ca&lt;-txt_ca%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ca$meanVal&lt;-mean_afinn(untk_ca)
+avg_ca&lt;-mean_afinn(untk_ca)
+
+txt_cn[]&lt;-lapply(txt_cn,as.character)
+untk_cn&lt;-txt_cn%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_cn$meanVal&lt;-mean_afinn(untk_cn)
+avg_cn&lt;-mean_afinn(untk_cn)
+
+txt_co[]&lt;-lapply(txt_co,as.character)
+untk_co&lt;-txt_co%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_co$meanVal&lt;-mean_afinn(untk_co)
+avg_co&lt;-mean_afinn(untk_co)
+
+txt_dc[]&lt;-lapply(txt_dc,as.character)
+untk_dc&lt;-txt_dc%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_dc$meanVal&lt;-mean_afinn(untk_dc)
+avg_dc&lt;-mean_afinn(untk_dc)
+
+txt_de[]&lt;-lapply(txt_de,as.character)
+untk_de&lt;-txt_de%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_de$meanVal&lt;-mean_afinn(untk_de)
+avg_de&lt;-mean_afinn(untk_de)
+
+txt_fl[]&lt;-lapply(txt_fl,as.character)
+untk_fl&lt;-txt_fl%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_fl$meanVal&lt;-mean_afinn(untk_fl)
+avg_fl&lt;-mean_afinn(untk_fl)
+
+txt_ga[]&lt;-lapply(txt_ga,as.character)
+untk_ga&lt;-txt_ga%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ga$meanVal&lt;-mean_afinn(untk_ga)
+avg_ga&lt;-mean_afinn(untk_ga)
+
+txt_ia[]&lt;-lapply(txt_ia,as.character)
+untk_ia&lt;-txt_ia%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ia$meanVal&lt;-mean_afinn(untk_ia)
+avg_ia&lt;-mean_afinn(untk_ia)
+
+txt_id[]&lt;-lapply(txt_id,as.character)
+untk_id&lt;-txt_id%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_id$meanVal&lt;-mean_afinn(untk_id)
+avg_id&lt;-mean_afinn(untk_id)
+
+txt_il[]&lt;-lapply(txt_il,as.character)
+untk_il&lt;-txt_il%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_il$meanVal&lt;-mean_afinn(untk_il)
+avg_il&lt;-mean_afinn(untk_il)
+
+txt_in[]&lt;-lapply(txt_in,as.character)
+untk_in&lt;-txt_in%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_in$meanVal&lt;-mean_afinn(untk_in)
+avg_in&lt;-mean_afinn(untk_in)
+
+txt_ks[]&lt;-lapply(txt_ks,as.character)
+untk_ks&lt;-txt_ks%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ks$meanVal&lt;-mean_afinn(untk_ks)
+avg_ks&lt;-mean_afinn(untk_ks)
+
+txt_ky[]&lt;-lapply(txt_ky,as.character)
+untk_ky&lt;-txt_ky%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ky$meanVal&lt;-mean_afinn(untk_ky)
+avg_ky&lt;-mean_afinn(untk_ky)
+
+txt_la[]&lt;-lapply(txt_la,as.character)
+untk_la&lt;-txt_la%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_la$meanVal&lt;-mean_afinn(untk_la)
+avg_la&lt;-mean_afinn(untk_la)
+
+txt_ma[]&lt;-lapply(txt_ma,as.character)
+untk_ma&lt;-txt_ma%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ma$meanVal&lt;-mean_afinn(untk_ma)
+avg_ma&lt;-mean_afinn(untk_ma)
+
+txt_md[]&lt;-lapply(txt_md,as.character)
+untk_md&lt;-txt_md%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_md$meanVal&lt;-mean_afinn(untk_md)
+avg_md&lt;-mean_afinn(untk_md)
+
+txt_me[]&lt;-lapply(txt_me,as.character)
+untk_me&lt;-txt_me%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_me$meanVal&lt;-mean_afinn(untk_me)
+avg_me&lt;-mean_afinn(untk_me)
+
+txt_mi[]&lt;-lapply(txt_mi,as.character)
+untk_mi&lt;-txt_mi%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_mi$meanVal&lt;-mean_afinn(untk_mi)
+avg_mi&lt;-mean_afinn(untk_mi)
+
+txt_mn[]&lt;-lapply(txt_mn,as.character)
+untk_mn&lt;-txt_mn%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_mn$meanVal&lt;-mean_afinn(untk_mn)
+avg_mn&lt;-mean_afinn(untk_mn)
+
+txt_mo[]&lt;-lapply(txt_mo,as.character)
+untk_mo&lt;-txt_mo%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_mo$meanVal&lt;-mean_afinn(untk_mo)
+avg_mo&lt;-mean_afinn(untk_mo)
+
+txt_ms[]&lt;-lapply(txt_ms,as.character)
+untk_ms&lt;-txt_ms%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ms$meanVal&lt;-mean_afinn(untk_ms)
+avg_ms&lt;-mean_afinn(untk_ms)
+
+txt_mt[]&lt;-lapply(txt_mt,as.character)
+untk_mt&lt;-txt_mt%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_mt$meanVal&lt;-mean_afinn(untk_mt)
+avg_mt&lt;-mean_afinn(untk_mt)
+
+txt_nc[]&lt;-lapply(txt_nc,as.character)
+untk_nc&lt;-txt_nc%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_nc$meanVal&lt;-mean_afinn(untk_nc)
+avg_nc&lt;-mean_afinn(untk_nc)
+
+txt_nd[]&lt;-lapply(txt_nd,as.character)
+untk_nd&lt;-txt_nd%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_nd$meanVal&lt;-mean_afinn(untk_nd)
+avg_nd&lt;-mean_afinn(untk_nd)
+
+txt_ne[]&lt;-lapply(txt_ne,as.character)
+untk_ne&lt;-txt_ne%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ne$meanVal&lt;-mean_afinn(untk_ne)
+avg_ne&lt;-mean_afinn(untk_ne)
+
+txt_nh[]&lt;-lapply(txt_nh,as.character)
+untk_nh&lt;-txt_nh%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_nh$meanVal&lt;-mean_afinn(untk_nh)
+avg_nh&lt;-mean_afinn(untk_nh)
+
+txt_nj[]&lt;-lapply(txt_nj,as.character)
+untk_nj&lt;-txt_nj%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_nj$meanVal&lt;-mean_afinn(untk_nj)
+avg_nj&lt;-mean_afinn(untk_nj)
+
+txt_nm[]&lt;-lapply(txt_nm,as.character)
+untk_nm&lt;-txt_nm%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_nm$meanVal&lt;-mean_afinn(untk_nm)
+avg_nm&lt;-mean_afinn(untk_nm)
+
+txt_nv[]&lt;-lapply(txt_nv,as.character)
+untk_nv&lt;-txt_nv%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_nv$meanVal&lt;-mean_afinn(untk_nv)
+avg_nv&lt;-mean_afinn(untk_nv)
+
+txt_ny[]&lt;-lapply(txt_ny,as.character)
+untk_ny&lt;-txt_ny%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ny$meanVal&lt;-mean_afinn(untk_ny)
+avg_ny&lt;-mean_afinn(untk_ny)
+
+txt_oh[]&lt;-lapply(txt_oh,as.character)
+untk_oh&lt;-txt_oh%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_oh$meanVal&lt;-mean_afinn(untk_oh)
+avg_oh&lt;-mean_afinn(untk_oh)
+
+txt_ok[]&lt;-lapply(txt_ok,as.character)
+untk_ok&lt;-txt_ok%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ok$meanVal&lt;-mean_afinn(untk_ok)
+avg_ok&lt;-mean_afinn(untk_ok)
+
+txt_or[]&lt;-lapply(txt_or,as.character)
+untk_or&lt;-txt_or%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_or$meanVal&lt;-mean_afinn(untk_or)
+avg_or&lt;-mean_afinn(untk_or)
+
+txt_pa[]&lt;-lapply(txt_pa,as.character)
+untk_pa&lt;-txt_pa%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_pa$meanVal&lt;-mean_afinn(untk_pa)
+avg_pa&lt;-mean_afinn(untk_pa)
+
+txt_ri[]&lt;-lapply(txt_ri,as.character)
+untk_ri&lt;-txt_ri%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ri$meanVal&lt;-mean_afinn(untk_ri)
+avg_ri&lt;-mean_afinn(untk_ri)
+
+txt_sc[]&lt;-lapply(txt_sc,as.character)
+untk_sc&lt;-txt_sc%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_sc$meanVal&lt;-mean_afinn(untk_sc)
+avg_sc&lt;-mean_afinn(untk_sc)
+
+txt_sd[]&lt;-lapply(txt_sd,as.character)
+untk_sd&lt;-txt_sd%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_sd$meanVal&lt;-mean_afinn(untk_sd)
+avg_sd&lt;-mean_afinn(untk_sd)
+
+txt_tn[]&lt;-lapply(txt_tn,as.character)
+untk_tn&lt;-txt_tn%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_tn$meanVal&lt;-mean_afinn(untk_tn)
+avg_tn&lt;-mean_afinn(untk_tn)
+
+txt_tx[]&lt;-lapply(txt_tx,as.character)
+untk_tx&lt;-txt_tx%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_tx$meanVal&lt;-mean_afinn(untk_tx)
+avg_tx&lt;-mean_afinn(untk_tx)
+
+txt_ut[]&lt;-lapply(txt_ut,as.character)
+untk_ut&lt;-txt_ut%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_ut$meanVal&lt;-mean_afinn(untk_ut)
+avg_ut&lt;-mean_afinn(untk_ut)
+
+txt_va[]&lt;-lapply(txt_va,as.character)
+untk_va&lt;-txt_va%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_va$meanVal&lt;-mean_afinn(untk_va)
+avg_va&lt;-mean_afinn(untk_va)
+
+txt_vt[]&lt;-lapply(txt_vt,as.character)
+untk_vt&lt;-txt_vt%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_vt$meanVal&lt;-mean_afinn(untk_vt)
+avg_vt&lt;-mean_afinn(untk_vt)
+
+txt_wa[]&lt;-lapply(txt_wa,as.character)
+untk_wa&lt;-txt_wa%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_wa$meanVal&lt;-mean_afinn(untk_wa)
+avg_wa&lt;-mean_afinn(untk_wa)
+
+txt_wi[]&lt;-lapply(txt_wi,as.character)
+untk_wi&lt;-txt_wi%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_wi$meanVal&lt;-mean_afinn(untk_wi)
+avg_wi&lt;-mean_afinn(untk_wi)
+
+txt_wv[]&lt;-lapply(txt_wv,as.character)
+untk_wv&lt;-txt_wv%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_wv$meanVal&lt;-mean_afinn(untk_wv)
+avg_wv&lt;-mean_afinn(untk_wv)
+
+txt_wy[]&lt;-lapply(txt_wy,as.character)
+untk_wy&lt;-txt_wy%&gt;%
+  unnest_tokens(word,text)%&gt;%
+  anti_join(stop_words)%&gt;%
+  anti_join(stop_twitter)%&gt;%
+  anti_join(stop_candidate)%&gt;%
+  inner_join(afinn)
+untk_wy$meanVal&lt;-mean_afinn(untk_wy)
+avg_wy&lt;-mean_afinn(untk_wy)</code></pre>
+</div>
+<div id="merge-datas" class="section level2">
+<h2>Merge Datas</h2>
+<pre class="r"><code>#Manual afinn sentiment score of each state as a list
+afinn_eachState_list&lt;-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),1)
+
+#Manual separate list of state names (lower 48 plus District of Columbia)
+state_names&lt;-c(&quot;Alabama&quot;,&quot;Arkansas&quot;,&quot;Arizona&quot;,&quot;California&quot;,&quot;Connecticut&quot;,&quot;Colorado&quot;,&quot;District of Columbia&quot;,&quot;Delaware&quot;,&quot;Florida&quot;,&quot;Georgia&quot;,&quot;Iowa&quot;,&quot;Idaho&quot;,&quot;Illinois&quot;,&quot;Indiana&quot;,&quot;Kansas&quot;,&quot;Kentucky&quot;,&quot;Louisiana&quot;,&quot;Massachusetts&quot;,&quot;Maryland&quot;,&quot;Maine&quot;,&quot;Michigan&quot;,&quot;Minnesota&quot;,&quot;Missouri&quot;,&quot;Mississippi&quot;,&quot;Montana&quot;,&quot;North Carolina&quot;,&quot;North Dakota&quot;,&quot;Nebraska&quot;,&quot;New Hampshire&quot;,&quot;New Jersey&quot;,&quot;New Mexico&quot;,&quot;Nevada&quot;,&quot;New York&quot;,&quot;Ohio&quot;,&quot;Oklahoma&quot;,&quot;Oregon&quot;,&quot;Pennsylvania&quot;,&quot;Rhode Island&quot;,&quot;South Carolina&quot;,&quot;South Dakota&quot;,&quot;Tennessee&quot;,&quot;Texas&quot;,&quot;Utah&quot;,&quot;Virginia&quot;,&quot;Vermont&quot;,&quot;Washington&quot;,&quot;Wisconsin&quot;,&quot;West Virginia&quot;,&quot;Wyoming&quot;)
+
+#Manual assignment of electoral college points per state
+state_ecv&lt;-as.numeric(c(&quot;9&quot;,&quot;6&quot;,&quot;11&quot;,&quot;55&quot;,&quot;7&quot;,&quot;9&quot;,&quot;3&quot;,&quot;3&quot;,&quot;29&quot;,&quot;16&quot;,&quot;6&quot;,&quot;4&quot;,&quot;20&quot;,&quot;11&quot;,&quot;6&quot;,&quot;8&quot;,&quot;8&quot;,&quot;11&quot;,&quot;10&quot;,&quot;4&quot;,&quot;16&quot;,&quot;10&quot;,&quot;10&quot;,&quot;6&quot;,&quot;3&quot;,&quot;15&quot;,&quot;3&quot;,&quot;5&quot;,&quot;4&quot;,&quot;14&quot;,&quot;5&quot;,&quot;6&quot;,&quot;29&quot;,&quot;18&quot;,&quot;7&quot;,&quot;7&quot;,&quot;20&quot;,&quot;4&quot;,&quot;9&quot;,&quot;3&quot;,&quot;11&quot;,&quot;38&quot;,&quot;6&quot;,&quot;13&quot;,&quot;3&quot;,&quot;12&quot;,&quot;10&quot;,&quot;5&quot;,&quot;3&quot;))
+
+#Manual assignment of election results as indicated by D or R
+state_result&lt;-as.vector(c(&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;R&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;))
+
+#Manual assignment of swing states as indicated by D, R, or S
+state_swing&lt;-as.vector(c(&quot;R&quot;,&quot;R&quot;,&quot;S&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;S&quot;,&quot;S&quot;,&quot;S&quot;,&quot;R&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;S&quot;,&quot;S&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;S&quot;,&quot;D&quot;,&quot;S&quot;,&quot;S&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;D&quot;,&quot;S&quot;,&quot;D&quot;,&quot;R&quot;,&quot;R&quot;,&quot;R&quot;,&quot;S&quot;,&quot;R&quot;,&quot;D&quot;,&quot;D&quot;,&quot;D&quot;,&quot;S&quot;,&quot;R&quot;,&quot;R&quot;))
+
+#Manual assignment of toss up congressional districts per state. source: https://ballotpedia.org/U.S._House_battlegrounds,_2020
+tUp_house&lt;-as.numeric(c(&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;2&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;2&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;2&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;4&quot;,&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;3&quot;,&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;))
+
+#Standardizing &quot;toss-up&quot; to be used as an alpha in ggplot
+house_swing&lt;-tUp_house*.25
+
+#Combining manual vectors and lists as columns into map data frames.
+states_afinn&lt;-tibble(state_names,afinn_eachState_list,state_result,state_ecv,state_swing,tUp_house,house_swing)
+names(states_afinn)&lt;-c(&quot;NAME&quot;,&quot;AFINN&quot;,&quot;RESULT&quot;,&quot;EC_VOTES&quot;,&quot;SWING_FORECAST&quot;,&quot;TOSS_UP&quot;,&quot;TU_alpha&quot;)
+states_us&lt;-states_us[order(states_us$NAME),]
+us_states_afinn&lt;-merge(states_us,states_afinn,by=&quot;NAME&quot;)
+
+# Calculation of electoral college votes per member of population.
+us_states_afinn$REP_PER_POP&lt;-us_states_afinn$EC_VOTES/us_states_afinn$total_pop_15
+sum_rep&lt;-sum(us_states_afinn$REP_PER_POP)
+us_states_afinn$VOTE_WEIGHT&lt;-round(as.numeric((us_states_afinn$REP_PER_POP/sum_rep)*10),2)</code></pre>
+</div>
+<div id="prepare-for-hex-grids" class="section level2">
+<h2>Prepare for Hex Grids</h2>
+<pre class="r"><code>#HEXGRID TUTORIAL: https://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
+spdf&lt;-geojson_read(&quot;us_states_hexgrid.geojson&quot;,what=&quot;sp&quot;)
+
+#import hex map data, turn into data frame, and edit names for later ease of use
+spdf@data=spdf@data%&gt;%
+  mutate(google_name=gsub(&quot; \\(United States\\)&quot;,&quot;&quot;,google_name))
+spdf@data = spdf@data %&gt;% mutate(google_name = gsub(&quot; \\(United States\\)&quot;, &quot;&quot;, google_name))
+spdf_fortified &lt;- tidy(spdf,region=&quot;google_name&quot;)
+names(spdf_fortified)&lt;-c(&quot;long&quot;,&quot;lat&quot;,&quot;order&quot;,&quot;hole&quot;,&quot;piece&quot;,&quot;group&quot;,&quot;NAME&quot;)
+
+#remove hawaii and alaska data
+spdf_fort_noHIAK&lt;-spdf_fortified[-c(8:14,78:84),]
+spdf_fort_L48&lt;-merge(spdf_fort_noHIAK,us_states_afinn,by=&quot;NAME&quot;)
+t_ec&lt;-sum(state_ecv)
+#Messed with algorithm to make alphas appear visually
+spdf_fort_L48$EC_WT&lt;-(round((spdf_fort_L48$EC_VOTES/t_ec),3)*10)+.2
+
+# Calculate the centroid of each hexagon to add the label:
+centers &lt;- cbind.data.frame(data.frame(gCentroid(spdf, byid=TRUE), id=spdf@data$iso3166_2))
+cntr&lt;-centers[-c(27,50),]
+
+my_palette &lt;- c(&quot;turquoise&quot;,&quot;salmon&quot;)
+my_palette2 &lt;- c(&quot;turquoise&quot;,&quot;salmon&quot;,&quot;violet&quot;)
+my_palette3&lt;-rev(magma(20))
+my_palette4&lt;-magma(8)</code></pre>
 </div>
 </div>
-<div id="results" class="section level1">
-<h1>Results</h1>
+<div id="hex-grids" class="section level1">
+<h1>Hex Grids</h1>
+<pre class="r"><code>hex_ec_forecast&lt;-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=EC_WT))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette2, 
+    name=&quot;Dem / Rep / Swing&quot;, 
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;), 
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=1))+
+  scale_alpha_identity(
+    name=&quot;% of EC ( / 10 )&quot;,
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;),
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &#39;bottom&#39;,
+                         title.position = &#39;top&#39;,
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( &quot;Electoral College \nForecast&quot; ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = &quot;#22211d&quot;),
+    plot.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    panel.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    legend.background = element_rect(fill = &quot;white&quot;, color = NA),
+    plot.title.position=&quot;plot&quot;,
+    plot.title = element_text(size= 18, hjust=0.2, color = &quot;#4e4d47&quot;, margin = margin(b = -0.1, t = 1, l = 2, unit = &quot;cm&quot;)),
+  )
+hex_ec_forecast</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /> The Electoral College Forecast map is a preliminary heat map, which displays the forecast of electoral college in colors and the % share of the total electoral college votes by opacity / alpha. Based off of this initial map we can see that there are roughly six states that have occupy a sizeable share of the electoral college votes (CA,TX,FL,NY,PA,IL); 21 states in total were forecasted to support the Republican candidate, 16 for the Democrat candidate, 12 that were swing or ambiguous. We can also see that the more Electoral College point rich states, skewed Democrat in pundit forecasting.</p>
+<pre class="r"><code>hex_ec_swingHouse&lt;-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=TU_alpha))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette2,
+    name=&quot;Dem / Rep / Swing&quot;, 
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;), 
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=1))+
+  scale_alpha_identity(
+    name=&quot;2020 Toss Up \nRaces per State&quot;,
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;),
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( &quot;House Swings \nPer State&quot; ) +
+  theme(
+    legend.position = c(0.7, 1.0),
+    text = element_text(color = &quot;#22211d&quot;),
+    plot.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    panel.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    legend.background = element_rect(fill = &quot;white&quot;, color = NA),
+    plot.title.position=&quot;plot&quot;,
+    plot.title = element_text(size= 18, hjust=0.2, color = &quot;#4e4d47&quot;, margin = margin(b = -0.1, t = 1, l = 2, unit = &quot;cm&quot;)),
+  )
+hex_ec_swingHouse</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="672" /> This hex map specifically highlights states where congressional change is occurred. Each state is colored per the presidential election forecast and the opacity of each hexagon is determined by the number of toss-up elections in each state (four being the most). We can see that both Texas and New York have four congressional toss-up elections.</p>
+<pre class="r"><code>hex_ec_voteWeight&lt;-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=RESULT, x = long, y = lat, group = group,alpha=VOTE_WEIGHT+0.2))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette, 
+    name=&quot;2020 Election Results&quot;, 
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;), 
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=1))+
+  scale_alpha_identity(
+    name=&quot;Popular Weight in EC&quot;,
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;),
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( &quot;EC &amp; Popular\n Relationship&quot; ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = &quot;#22211d&quot;),
+    plot.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    panel.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    legend.background = element_rect(fill = &quot;white&quot;, color = NA),
+    plot.title = element_text(size= 18, hjust=0.2, color = &quot;#4e4d47&quot;, margin = margin(b = -0.1, t = 1, l = 2, unit = &quot;cm&quot;)),
+  )
+hex_ec_voteWeight</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="672" /> The Electoral College and Popular Relationship map illustrates where individual votes cast have the strongest exchange for Electoral College points. The Electoral College distribution of points is nuanced, however fundamentally a fixed number of points must be divided between all states (and District of Columbia). Most of the Electoral College points are allocated based off of the number of congressional districts, which are designated based off of population, however all states are also given two points basally. This minimum points of the Electoral College subtly gives a better "exchange rate to sparsely populated rural states like Wyoming, the Dakotas, and Vermont. This map also shows how the election played out.</p>
+<pre class="r"><code>spdf_fort_L48$ECbin&lt;-cut(spdf_fort_L48$EC_VOTES,
+                         breaks=c(0,6,12,18,24,Inf), 
+                         labels=c(&quot;0-6&quot;,&quot;7-12&quot;,&quot;13-18&quot;,&quot;19-24&quot;,&quot;30+&quot;), 
+                         include.lowest=TRUE)
+
+hex_ec_concentration&lt;-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=ECbin, x = long, y = lat, group = group))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette3, 
+    name=&quot;EC Points&quot;, 
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;), 
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=2))+
+  coord_quickmap()+
+  ggtitle( &quot;Electoral \nCollege&quot; ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = &quot;#22211d&quot;),
+    plot.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    panel.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    legend.background = element_rect(fill = &quot;white&quot;, color = NA),
+    plot.title = element_text(size= 18, hjust=0.2, color = &quot;#4e4d47&quot;, margin = margin(b = -0.1, t = 1, l = 2, unit = &quot;cm&quot;)),
+  )
+hex_ec_concentration</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="672" /> This is yet another visualization of the Electoral College, which divides the lower 48 states into the saturation of their electoral college points. Here we can more clearly see the distribution of points and also the few states that hold the majority of the electoral college votes.</p>
+<pre class="r"><code>hex_afinn&lt;-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=as.factor(AFINN), x = long, y = lat, group = group))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id),color=&quot;white&quot;) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette4, 
+    name=&quot;Sentiment + / -&quot;, 
+    guide = guide_legend(keyheight = unit(2, units = &quot;mm&quot;), 
+                         keywidth=unit(8, units = &quot;mm&quot;),
+                         label.position = &quot;bottom&quot;,
+                         title.position = &#39;top&#39;,
+                         nrow=2))+
+  coord_quickmap()+
+  ggtitle( &quot;Twitter \nSentiment&quot; ) +
+  theme(
+    legend.position = c(0.6, 1.0),
+    text = element_text(color = &quot;#22211d&quot;),
+    plot.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    panel.background = element_rect(fill = &quot;white&quot;, color = NA), 
+    legend.background = element_rect(fill = &quot;white&quot;, color = NA),
+    plot.title = element_text(size= 18, hjust=0.2, color = &quot;#4e4d47&quot;, margin = margin(b = -0.1, t = 1, l = 2, unit = &quot;cm&quot;)),
+  )
+hex_afinn</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /> The Twitter Sentiment uses the same hex map structure, but shows something much more illustrative to the reception of the election results. The sentiments were initially derived from a random sampling of tweets about each state and the election, for example a random sample was collected for Pennsylvania, by filtering only tweets that included both “election” and “Pennsylvania” for the query. Once each of the states’ samples were collected the text of each tweet was extracted and separated into its unique words. Commonly occurring structural words like “it”,“and”,and “the”, as well as the search terms themselves and the candidates names were removed from the list of words. Once that was done the remaining words were joined with an afinn sentiment word list, which assigned values from -5 to +5 to each individual word, and indicated the extremity in positivity and negativity of each word. Finally an average of these afinn values was calculated for each state and then mapped to the hex map.</p>
+<p>The most notable initial finding is that the vast majority of tweets around the digital space of states are negative in tone according to the afinn sentiment assignments, with the only exception being the state of Georgia, which was heading toward a run-off election when the data was collected. On the other side of the spectrum Minnesota and West Virginia were quite extremely negative in sentiment. Its difficult to say exactly why these sentiments have manifested as they have however here are a few unexplored explanations for a few states. West Virginia is the most pro Donald Trump, republican candidate, among all states and so hiw defeat in the national election may have been evocative of negative emotions. Georgia voted for a democrat for the first time since 1996, had a historic high level of black voter participation, and was heading toward a run-off election when the data was collected, perhaps the sentiment on twitter reflected a level of surprise and excitement and the outcome of and participation in the election. Missouri (MO) also had an unexpected positive sentiment compared to many of its neighboring states, possible explanations may be linked back to the ongoing Black Lives Matter movement which started in the suburbs of St Louis, or because of many congressional seat changes. Finally Minnesota also seems to have a particularly negative sentiment in its tweets. The movement to defund the police began in Minneapolis may have influence on how users have perceived the election results.</p>
+</div>
+<div id="wordclouds" class="section level1">
+<h1>Wordclouds</h1>
+<p>The proceeding word cloud analyses sit on top of word frequency counts for each indicated twitter location election stream search. Rather than using the original afinn classification, the word clouds join the unique words with a more simple bing classification list, which in principle does the same thing as afinn, but merely classifies words as either “negative” or “positive”. Positive words are indicated by a dark green coloration, and negative by red coloration. The size of the font of each of the words indicates the frequency (larger word ~ more frequently used). At the center of each word cloud the most commonly used words can be found and the frequencies decrease as the words radiate out from the center. This color scheme is a visual way to understand what is being said in the digital community.</p>
+<div id="swing-states" class="section level2">
+<h2>Swing States</h2>
+<pre class="r"><code>#WORD CLOUDS https://towardsdatascience.com/create-a-word-cloud-with-r-bde3e7422e8a
+swing_wfqc&lt;-rbind(untk_pa,untk_ga,untk_az,untk_fl,untk_ia,untk_mi,untk_mn,untk_nm,untk_nv,untk_tx,untk_wi)%&gt;%
+  count(word,sort=TRUE)
+bing_swing&lt;-swing_wfqc%&gt;%
+  inner_join(bing)
+bing_swing$color&lt;-ifelse(bing_swing$sentiment %in% &quot;negative&quot;,&quot;red&quot;,&quot;darkgreen&quot;)
+
+head(bing_swing)</code></pre>
+<pre><code>##      word    n sentiment     color
+## 1   fraud 6802  negative       red
+## 2     won 5005  positive darkgreen
+## 3  stolen 3788  negative       red
+## 4 support 3506  positive darkgreen
+## 5    lost 3333  negative       red
+## 6   steal 2807  negative       red</code></pre>
+<pre class="r"><code>cloud_swing&lt;-wordcloud(word=bing_swing$word,freq=bing_swing$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_swing$color)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="pennsylvania" class="section level2">
+<h2>Pennsylvania</h2>
+<pre class="r"><code>pa_wfqc&lt;-untk_pa%&gt;%
+  count(word,sort=TRUE)
+bing_pa&lt;-pa_wfqc%&gt;%
+  inner_join(bing)
+bing_pa$color&lt;-ifelse(bing_pa$sentiment %in% &quot;negative&quot;,&quot;red&quot;,&quot;darkgreen&quot;)
+
+head(bing_pa)</code></pre>
+<pre><code>##      word    n sentiment     color
+## 1   fraud 1267  negative       red
+## 2 support  336  positive darkgreen
+## 3     won  329  positive darkgreen
+## 4  stolen  307  negative       red
+## 5   steal  296  negative       red
+## 6    lost  242  negative       red</code></pre>
+<pre class="r"><code>cloud_pa&lt;-wordcloud(word=bing_pa$word,freq=bing_pa$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_pa$color)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div id="minnesota" class="section level2">
+<h2>Minnesota</h2>
+<pre class="r"><code>mn_wfqc&lt;-untk_mn%&gt;%
+  count(word,sort=TRUE)
+bing_mn&lt;-mn_wfqc%&gt;%
+  inner_join(bing)
+bing_mn$color&lt;-ifelse(bing_mn$sentiment %in% &quot;negative&quot;,&quot;red&quot;,&quot;darkgreen&quot;)
+
+head(bing_mn)</code></pre>
+<pre><code>##         word    n sentiment     color
+## 1     stolen 1986  negative       red
+## 2      fraud  672  negative       red
+## 3        won  276  positive darkgreen
+## 4      steal  268  negative       red
+## 5       lost  225  negative       red
+## 6 conspiracy  204  negative       red</code></pre>
+<pre class="r"><code>cloud_mn&lt;-wordcloud(word=bing_mn$word,freq=bing_mn$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_mn$color)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+<div id="west-virginia" class="section level2">
+<h2>West Virginia</h2>
+<pre class="r"><code>wv_wfqc&lt;-untk_wv%&gt;%
+  count(word,sort=TRUE)
+bing_wv&lt;-wv_wfqc%&gt;%
+  inner_join(bing)
+bing_wv$color&lt;-ifelse(bing_wv$sentiment %in% &quot;negative&quot;,&quot;red&quot;,&quot;darkgreen&quot;)
+
+head(bing_wv)</code></pre>
+<pre><code>##     word   n sentiment     color
+## 1   fake 728  negative       red
+## 2  fraud 723  negative       red
+## 3    won 493  positive darkgreen
+## 4  badly 379  negative       red
+## 5  steal 254  negative       red
+## 6 secure 223  positive darkgreen</code></pre>
+<pre class="r"><code>cloud_wv&lt;-wordcloud(word=bing_wv$word,freq=bing_wv$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_wv$color)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+<div id="georgia" class="section level2">
+<h2>Georgia</h2>
+<pre class="r"><code>ga_wfqc&lt;-untk_ga%&gt;%
+  count(word,sort=TRUE)
+bing_ga&lt;-ga_wfqc%&gt;%
+  inner_join(bing)
+bing_ga$color&lt;-ifelse(bing_ga$sentiment %in% &quot;negative&quot;,&quot;red&quot;,&quot;darkgreen&quot;)
+
+head(bing_ga)</code></pre>
+<pre><code>##      word   n sentiment     color
+## 1    wins 633  positive darkgreen
+## 2     won 554  positive darkgreen
+## 3     win 466  positive darkgreen
+## 4   fraud 354  negative       red
+## 5    lost 309  negative       red
+## 6 support 286  positive darkgreen</code></pre>
+<pre class="r"><code>cloud_ga&lt;-wordcloud(word=bing_ga$word,freq=bing_ga$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_ga$color)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
 <p>[~200 words]</p>
-<p>Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.</p>
-<p>Show tables, plots, etc. and describe them.</p>
-<pre class="r"><code>m &lt;- leaflet(data) %&gt;% 
-  addTiles() %&gt;% 
-  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %&gt;% 
-  addPopups(~x[2], ~y[2], &quot;Random popup&quot;)
-m  # a map with the default OSM tile layer</code></pre>
+<p>still have to fill this in.. .. also open to any aditional analyses that people might be interested in seeing..</p>
+</div>
+<div id="thoughts-ideas-additional-analysis" class="section level1">
+<h1>Thoughts / Ideas Additional Analysis</h1>
+<pre class="r"><code>#strip_pa&lt;-subset(untk_pa,select=c(tweet,word))
+
+#untk_bg_pa&lt;-txt_pa%&gt;%
+#  unnest_tokens(bigram,text,token=&quot;ngrams&quot;,n=2)
+#untk_split_pa&lt;-untk_bg_pa%&gt;%
+#  separate(bigram,c(&quot;word1&quot;,&quot;word2&quot;),sep=&quot; &quot;)
+#untk_split_sw_pa&lt;-untk_split_pa%&gt;%
+#  anti_join(stop_words,by=c(&quot;word1&quot;=&quot;word&quot;))%&gt;%
+#  anti_join(stop_words,by=c(&quot;word2&quot;=&quot;word&quot;))%&gt;%
+#  anti_join(stop_twitter,by=c(&quot;word1&quot;=&quot;word&quot;))%&gt;%
+#  anti_join(stop_twitter,by=c(&quot;word2&quot;=&quot;word&quot;))%&gt;%
+#  anti_join(stop_candidate,by=c(&quot;word1&quot;=&quot;word&quot;))%&gt;%
+#  anti_join(stop_candidate,by=c(&quot;word2&quot;=&quot;word&quot;))
+#untk_split_sw_pa&lt;-subset(untk_split_sw_pa,select=-location)
+#bip_pa&lt;-graph.data.frame(untk_split_sw_pa)
+#V(bip_pa)$type&lt;-V(bip_pa)$name %in% bip_pa[,1]
+#v&lt;-get.adjacency(bipartite.projection(bip_pa)[[2]],attr=&quot;weight&quot;,sparse=FALSE)
+
+#test_pa&lt;-crossprod(table(untk_split_sw_pa[2:3]))</code></pre>
+<pre class="r"><code>afinn_states&lt;-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),2)
+states_afinn_new&lt;-tibble(afinn_states,state_names)
+names(states_afinn_new)&lt;-c(&quot;AFINN_2&quot;,&quot;NAME&quot;)
+spdf_fort_tprep&lt;-merge(spdf_fort_L48,states_afinn_new,by=&quot;NAME&quot;)
+
+spdf_fort_tprep&lt;-subset(spdf_fort_tprep,select=-c(NAME,long,lat,order,hole,piece,group,GEOID,REGION,AREA,TU_alpha,AFINN,geometry,ECbin,RESULT,SWING_FORECAST))
+states_table&lt;-distinct(spdf_fort_tprep)
+
+m&lt;-as.matrix(states_table)
+data_corr&lt;-corrplot(cor(m),method=&quot;color&quot;)</code></pre>
 <div class="figure">
-<div id="htmlwidget-76e7c733e2c85a9b6d80" style="width:576px;height:288px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-76e7c733e2c85a9b6d80">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addCircleMarkers","args":[[29.4663914199919,-27.2691900283098,-17.0459982287139,15.3849579580128,-7.84217015840113,11.7300248891115,-24.8757584765553,23.7654526904225,-42.9576047603041,50.0991017371416,-15.8640149049461,21.7917503602803,39.3175749946386,-35.7592477742583,6.49465005844831,13.9850866701454,5.52804015576839,14.1774233244359,-4.16841370984912,43.8217280432582],[5.19381905905902,-5.2053642924875,87.8795930743217,133.0253954418,-47.7247963752598,30.3119853883982,-155.951871201396,29.9307942856103,59.4957024883479,104.493598463014,100.395171856508,73.0535933934152,45.2607579901814,8.17438652738929,-177.542727990076,-49.5596691593528,-57.4125209357589,-97.3563982732594,50.6841326504946,76.756791556254],[15.0011104007717,10.4312932747416,16.1182651342824,17.7406647335738,11.3580315257423,11.8676748056896,13.7326478282921,9.61946870898828,13.031149340095,6.11102121998556,18.4694343723822,10.2641160588246,6.49558022036217,9.86504407250322,7.56471800617874,8.15371852600947,19.7488995268941,7.63024685555138,16.3658318249509,15.0022180343512],null,null,{"interactive":true,"className":"","stroke":true,"color":["d","e","d","b","d","b","b","b","a","b","d","c","a","d","e","e","d","a","a","d"],"weight":5,"opacity":0.5,"fill":true,"fillColor":["d","e","d","b","d","b","b","b","a","b","d","c","a","d","e","e","d","a","a","d"],"fillOpacity":0.2},null,null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addPopups","args":[-27.2691900283098,-5.2053642924875,"Random popup",null,null,{"maxWidth":300,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"className":""}]}],"limits":{"lat":[-42.9576047603041,50.0991017371416],"lng":[-177.542727990076,133.0253954418]}},"evals":[],"jsHooks":[]}</script>
+<img src="index_files/figure-html/unnamed-chunk-18-1.png" alt="Map of completely random data" width="576" />
 <p class="caption">
 Map of completely random data
 </p>
 </div>
-<pre class="r"><code>data %&gt;% 
-  ggplot(aes(x=x,y=y,col=category))+
-  geom_point()</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
-</div>
-<div id="conclusions" class="section level1">
-<h1>Conclusions</h1>
-<p>[~200 words]</p>
-<p>Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.</p>
+<pre class="r"><code>#m &lt;- leaflet(data) %&gt;% 
+#  addTiles() %&gt;% 
+#  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %&gt;% 
+#  addPopups(~x[2], ~y[2], &quot;Random popup&quot;)
+#m  # a map with the default OSM tile layer</code></pre>
+<pre class="r"><code>#data %&gt;% 
+#  ggplot(aes(x=x,y=y,col=category))+
+#  geom_point()</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
