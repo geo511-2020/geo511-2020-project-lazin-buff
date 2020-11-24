@@ -765,6 +765,41 @@ hex_ec_forecast
 The Electoral College Forecast map is a preliminary heat map, which displays the forecast of electoral college in colors and the % share of the total electoral college votes by opacity / alpha. Based off of this initial map we can see that there are roughly six states that have occupy a sizeable share of the electoral college votes (CA,TX,FL,NY,PA,IL); 21 states in total were forecasted to support the Republican candidate, 16 for the Democrat candidate, 12 that were swing or ambiguous. We can also see that the more Electoral College point rich states, skewed Democrat in pundit forecasting.
 
 ```{r}
+hex_ec_swingHouse<-ggplot() +
+  geom_polygon(data = spdf_fort_L48, aes(fill=SWING_FORECAST, x = long, y = lat, group = group,alpha=TU_alpha))+
+  geom_text(data=cntr, aes(x=x, y=y, label=id)) +
+  theme_void() +
+  scale_fill_manual( 
+    values=my_palette2,
+    name="Dem / Rep / Swing", 
+    guide = guide_legend(keyheight = unit(2, units = "mm"), 
+                         keywidth=unit(8, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  scale_alpha_identity(
+    name="2020 Toss Up \nRaces per State",
+    guide = guide_legend(keyheight = unit(2, units = "mm"),
+                         keywidth=unit(8, units = "mm"),
+                         label.position = "bottom",
+                         title.position = 'top',
+                         nrow=1))+
+  coord_quickmap()+
+  ggtitle( "House Swings \nPer State" ) +
+  theme(
+    legend.position = c(0.7, 1.0),
+    text = element_text(color = "#22211d"),
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA), 
+    legend.background = element_rect(fill = "white", color = NA),
+    plot.title.position="plot",
+    plot.title = element_text(size= 18, hjust=0.2, color = "#4e4d47", margin = margin(b = -0.1, t = 1, l = 2, unit = "cm")),
+  )
+hex_ec_swingHouse
+```
+This hex map specifically highlights states where congressional change is occurred. Each state is colored per the presidential election forecast and the opacity of each hexagon is determined by the number of toss-up elections in each state (four being the most). We can see that both Texas and New York have four congressional toss-up elections.
+
+```{r}
 hex_ec_voteWeight<-ggplot() +
   geom_polygon(data = spdf_fort_L48, aes(fill=RESULT, x = long, y = lat, group = group,alpha=VOTE_WEIGHT+0.2))+
   geom_text(data=cntr, aes(x=x, y=y, label=id)) +
@@ -877,7 +912,7 @@ cloud_swing<-wordcloud(word=bing_swing$word,freq=bing_swing$n,min.freq=0,max.wor
 ```
 
 ## Pennsylvania
-```{r,message=FALSE,include=FALSE}
+```{r,message=FALSE}
 pa_wfqc<-untk_pa%>%
   count(word,sort=TRUE)
 bing_pa<-pa_wfqc%>%
