@@ -4,7 +4,7 @@ author: "Marko Lazin"
 subtitle: Twitter Sentiments and the Electoral College
 ---
 
-# Introduction
+# Introduction 
 
 The United States Federal Election of 2020 has come and gone. This moment in United States history is being described by many contemporaries as rife with division and factionalism, with ideological perspectives assuming adversarial stances against one another. This framing of the present is simultaneously visceral and opaque, both concerning and difficult to contextualize / quantify. Describing this moment has traditionally been done with words, and in modern times has become decentralized with the advent and propagation of social media platforms.
 
@@ -14,7 +14,7 @@ Ultimately the goal of this exercise is to shed light on how people are feeling 
  
 # Materials and Methods
 
-## Approach
+## Approach 
 Twitter data is available through the use of a Twitter Developer Account, via its Rest API, which can be applied for through the following link. For reproduction's sake, a processed and halfway cleaned version of the data used can be found in the projects repository with a separate csv of data available for each of the lower 48 states, and the District of Columbia.
 
 The upfront processing and "halfway" cleaning of the initial data extracted from Twitter will not be included in this analysis for the following reasons: 1) The raw pre processed data contains twitter user information that should    not be publicly shared; 2) Raw pre processed data include several independent variables which are not of concern in this analysis; 3) Raw pre processed data takes up more space than can be uploaded to GitHub.
@@ -86,13 +86,13 @@ knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
 All data can be found on GitHub:
 https://github.com/geo511-2020/geo511-2020-project-lazin-buff.git
 
-Ballotopedia Political Information:
+Ballotopedia Political Information: 
 https://ballotpedia.org/Electoral_College
 
 Twitter Developer Application Process:
 https://developer.twitter.com/en/apply-for-access
 
-Hexagram Map:
+Hexagram Map: 
 https://team.carto.com/u/andrew/tables/andrew.us_states_hexgrid/public/map#/table
 
 ## Load in Data
@@ -664,7 +664,7 @@ untk_wy$meanVal<-mean_afinn(untk_wy)
 avg_wy<-mean_afinn(untk_wy)
 ```
 
-## Merge Datas
+## Merge Datas 
 ```{r}
 #Manual afinn sentiment score of each state as a list
 afinn_eachState_list<-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),1)
@@ -672,7 +672,7 @@ afinn_eachState_list<-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,a
 #Manual separate list of state names (lower 48 plus District of Columbia)
 state_names<-c("Alabama","Arkansas","Arizona","California","Connecticut","Colorado","District of Columbia","Delaware","Florida","Georgia","Iowa","Idaho","Illinois","Indiana","Kansas","Kentucky","Louisiana","Massachusetts","Maryland","Maine","Michigan","Minnesota","Missouri","Mississippi","Montana","North Carolina","North Dakota","Nebraska","New Hampshire","New Jersey","New Mexico","Nevada","New York","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Virginia","Vermont","Washington","Wisconsin","West Virginia","Wyoming")
 
-#Manual assignment of electoral college points per state
+#Manual assignment of electoral college points per state 
 state_ecv<-as.numeric(c("9","6","11","55","7","9","3","3","29","16","6","4","20","11","6","8","8","11","10","4","16","10","10","6","3","15","3","5","4","14","5","6","29","18","7","7","20","4","9","3","11","38","6","13","3","12","10","5","3"))
 
 #Manual assignment of election results as indicated by D or R
@@ -894,7 +894,7 @@ The Twitter Sentiment uses the same hex map structure, but shows something much 
 The most notable initial finding is that the vast majority of tweets around the digital space of states are negative in tone according to the afinn sentiment assignments, with the only exception being the state of Georgia, which was heading toward a run-off election when the data was collected. On the other side of the spectrum Minnesota and West Virginia were quite extremely negative in sentiment. Its difficult to say exactly why these sentiments have manifested as they have however here are a few unexplored explanations for a few states. West Virginia is the most pro Donald Trump, republican candidate, among all states and so hiw defeat in the national election may have been evocative of negative emotions. Georgia voted for a democrat for the first time since 1996, had a historic high level of black voter participation, and was heading toward a run-off election when the data was collected, perhaps the sentiment on twitter reflected a level of surprise and excitement and the outcome of and participation in the election. Missouri (MO) also had an unexpected positive sentiment compared to many of its neighboring states, possible explanations may be linked back to the ongoing Black Lives Matter movement which started in the suburbs of St Louis, or because of many congressional seat changes. Finally Minnesota also seems to have a particularly negative sentiment in its tweets. The movement to defund the police began in Minneapolis may have influence on how users have perceived the election results.
 
 # Wordclouds
-
+ 
 The proceeding word cloud analyses sit on top of word frequency counts for each indicated twitter location election stream search. Rather than using the original afinn classification, the word clouds join the unique words with a more simple bing classification list, which in principle does the same thing as afinn, but merely classifies words as either "negative" or "positive". Positive words are indicated by a dark green coloration, and negative by red coloration. The size of the font of each of the words indicates the frequency (larger word ~ more frequently used). At the center of each word cloud the most commonly used words can be found and the frequencies decrease as the words radiate out from the center. This color scheme is a visual way to understand what is being said in the digital community.
 
 ## Swing States
