@@ -963,62 +963,11 @@ head(bing_ga)
 cloud_ga<-wordcloud(word=bing_ga$word,freq=bing_ga$n,min.freq=0,max.words=25,ordered.colors=T,random.order=F,colors=bing_ga$color)
 ```
 
-# Conclusion
+# Conclusion, Thoughts / Ideas Additional Analysis
 
-[~200 words]
+There are a lot of assumptions that go into this 2020 Election analysis, preeminent of which is that the sentiment analysis word assignments are infallible, which they are not. Because this data was so temporal it will be difficult to "recover" twitter data from the weeks around the US Presidential election, however more data would help to smooth over any inconsistencies in the analysis.
 
-still have to fill this in..
-.. also open to any aditional analyses that people might be interested in seeing..
-
-# Thoughts / Ideas Additional Analysis
-```{r}
-#strip_pa<-subset(untk_pa,select=c(tweet,word))
-
-#untk_bg_pa<-txt_pa%>%
-#  unnest_tokens(bigram,text,token="ngrams",n=2)
-#untk_split_pa<-untk_bg_pa%>%
-#  separate(bigram,c("word1","word2"),sep=" ")
-#untk_split_sw_pa<-untk_split_pa%>%
-#  anti_join(stop_words,by=c("word1"="word"))%>%
-#  anti_join(stop_words,by=c("word2"="word"))%>%
-#  anti_join(stop_twitter,by=c("word1"="word"))%>%
-#  anti_join(stop_twitter,by=c("word2"="word"))%>%
-#  anti_join(stop_candidate,by=c("word1"="word"))%>%
-#  anti_join(stop_candidate,by=c("word2"="word"))
-#untk_split_sw_pa<-subset(untk_split_sw_pa,select=-location)
-#bip_pa<-graph.data.frame(untk_split_sw_pa)
-#V(bip_pa)$type<-V(bip_pa)$name %in% bip_pa[,1]
-#v<-get.adjacency(bipartite.projection(bip_pa)[[2]],attr="weight",sparse=FALSE)
-
-#test_pa<-crossprod(table(untk_split_sw_pa[2:3]))
-```
-
-
-```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
-afinn_states<-round(c(avg_al,avg_ar,avg_az,avg_ca,avg_cn,avg_co,avg_dc,avg_de,avg_fl,avg_ga,avg_ia,avg_id,avg_il,avg_in,avg_ks,avg_ky,avg_la,avg_ma,avg_md,avg_me,avg_mi,avg_mn,avg_mo,avg_ms,avg_mt,avg_nc,avg_nd,avg_ne,avg_nh,avg_nj,avg_nm,avg_nv,avg_ny,avg_oh,avg_ok,avg_or,avg_pa,avg_ri,avg_sc,avg_sd,avg_tn,avg_tx,avg_ut,avg_va,avg_vt,avg_wa,avg_wi,avg_wv,avg_wy),2)
-states_afinn_new<-tibble(afinn_states,state_names)
-names(states_afinn_new)<-c("AFINN_2","NAME")
-spdf_fort_tprep<-merge(spdf_fort_L48,states_afinn_new,by="NAME")
-
-spdf_fort_tprep<-subset(spdf_fort_tprep,select=-c(NAME,long,lat,order,hole,piece,group,GEOID,REGION,AREA,TU_alpha,AFINN,geometry,ECbin,RESULT,SWING_FORECAST))
-states_table<-distinct(spdf_fort_tprep)
-
-m<-as.matrix(states_table)
-data_corr<-corrplot(cor(m),method="color")
-
-#m <- leaflet(data) %>% 
-#  addTiles() %>% 
-#  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
-#  addPopups(~x[2], ~y[2], "Random popup")
-#m  # a map with the default OSM tile layer
-```
-
-
-```{r}
-#data %>% 
-#  ggplot(aes(x=x,y=y,col=category))+
-#  geom_point()
-```
+Furthermore it would be fascinating to look not only at the presidential elections but also the congressional elections and map them out by week leading up to the election, during the "counting" week(s), and in the week following the declared winners. The analysis intentionally minimally includes tables and and numeric figures, as this analysis is more a practice of visualization than hard figure comparison. That said the figures can be derived relatively easily. The preprocessing of the data could have also been executed much more efficiently with a for loop, unfortunately the technical skills weren't quite there yet at the time of the analysis and have not had the time to go back in and make changes.
 
 # References
 
