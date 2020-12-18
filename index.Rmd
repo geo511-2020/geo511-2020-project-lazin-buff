@@ -1,7 +1,7 @@
 ---
 title: "US Federal Election 2020"
 author: "Marko Lazin"
-subtitle: Twitter Sentiments and the Electoral College
+subtitle: Twitter Sentiments and the Electoral College 
 ---
 
 # Introduction
